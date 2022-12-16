@@ -1,23 +1,23 @@
 #the mod name as displayed in-game
-displayName: "Java Mod Template"
+displayName: "Transport QOL (name pending)"
 
 #the internal name of your mod
-name: "example-java-mod"
+name: "transport-qol"
 
 #your name
-author: "You"
+author: "MEEPofFaith"
 
 #the fully qualified main class of the mod
-main: "example.ExampleJavaMod"
+main: "transport.TransportQOL"
 
 #the mod description as seen in the mod dialog
-description: "A Mindustry Java mod template."
+description: "A Mindustry mod with small additions to transportation for a little bit of extra flow control."
 
 #the mod version
 version: 1.0
 
 #the minimum game build required to run this mod
-minGameVersion: 129
+minGameVersion: 140.1
 
 #this is a java mod
 java: true
