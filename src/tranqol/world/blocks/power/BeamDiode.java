@@ -129,7 +129,18 @@ public class BeamDiode extends Block{
         public int lastChange = -2;
 
         @Override
+        public void placed(){
+            super.placed();
+            updateDirections();
+        }
+
+        @Override
         public void updateTile(){
+            if(lastChange != world.tileChanges){
+                lastChange = world.tileChanges;
+                updateDirections();
+            }
+
             if(tile == null || links[0] == null || links[1] == null || !links[1].block.hasPower || !links[0].block.hasPower || links[1].team != team || links[0].team != team) return;
 
             PowerGraph backGraph = links[1].power.graph;
