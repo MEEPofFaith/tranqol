@@ -10,5 +10,6 @@ public class TranQOL extends Mod{
     @Override
     public void loadContent(){
         TranQOLBlocks.load();
+        TranQOLTechTree.load();
     }
 }
