@@ -1,17 +1,17 @@
 #the mod name as displayed in-game
-displayName: "Transport QOL (name pending)"
+displayName: "TranQOL"
 
 #the internal name of your mod
-name: "transport-qol"
+name: "tranqol"
 
 #your name
 author: "MEEPofFaith"
 
 #the fully qualified main class of the mod
-main: "transport.TransportQOL"
+main: "tranqol.TranQOL"
 
 #the mod description as seen in the mod dialog
-description: "A Mindustry mod with small additions to transportation for a little bit of extra flow control."
+description: "Give yourself a tranquil feeling with more control over the flow of resources."
 
 #the mod version
 version: 1.0
