@@ -17,13 +17,13 @@ public class TranqolTechTree{
 
     public static void load(){
         vanillaNode(liquidRouter, () -> {
-            node(liquidOverflowGate);
-            node(liquidUnderflowGate);
+            node(liquidOverflowValve);
+            node(liquidUnderflowValve);
         });
 
         vanillaNode("erekir", reinforcedLiquidRouter, () -> {
-            node(reinforcedLiquidOverflowGate);
-            node(reinforcedLiquidUnderflowGate);
+            node(reinforcedLiquidOverflowValve);
+            node(reinforcedLiquidUnderflowValve);
         });
 
         vanillaNode("erekir", beamTower, () -> {

@@ -13,11 +13,11 @@ public class TranqolBlocks{
 
     // region liquid
 
-    liquidOverflowGate, liquidUnderflowGate,
+        liquidOverflowValve, liquidUnderflowValve,
 
     // region liquid - Erekir
 
-    reinforcedLiquidOverflowGate, reinforcedLiquidUnderflowGate,
+    reinforcedLiquidOverflowValve, reinforcedLiquidUnderflowValve,
 
     // endregion
     // region power - Erekir
@@ -29,13 +29,13 @@ public class TranqolBlocks{
     public static void load(){
         // region liquid
 
-        liquidOverflowGate = new LiquidOverflowGate("liquid-overflow-gate"){{
+        liquidOverflowValve = new LiquidOverflowValve("liquid-overflow-valve"){{
             requirements(Category.liquid, with(Items.graphite, 6, Items.metaglass, 10));
             solid = false;
             underBullets = true;
         }};
 
-        liquidUnderflowGate = new LiquidOverflowGate("liquid-underflow-gate"){{
+        liquidUnderflowValve = new LiquidOverflowValve("liquid-underflow-valve"){{
             requirements(Category.liquid, with(Items.graphite, 6, Items.metaglass, 10));
             solid = false;
             underBullets = true;
@@ -45,7 +45,7 @@ public class TranqolBlocks{
         // endregion
         // region liquid - Erekir
 
-        reinforcedLiquidOverflowGate = new LiquidOverflowGate("reinforced-liquid-overflow-gate"){{
+        reinforcedLiquidOverflowValve = new LiquidOverflowValve("reinforced-liquid-overflow-valve"){{
             requirements(Category.liquid, with(Items.graphite, 6, Items.beryllium, 10));
             buildCostMultiplier = 3f;
             health = 260;
@@ -54,7 +54,7 @@ public class TranqolBlocks{
             underBullets = true;
         }};
 
-        reinforcedLiquidUnderflowGate = new LiquidOverflowGate("reinforced-liquid-underflow-gate"){{
+        reinforcedLiquidUnderflowValve = new LiquidOverflowValve("reinforced-liquid-underflow-valve"){{
             requirements(Category.liquid, with(Items.graphite, 6, Items.beryllium, 10));
             buildCostMultiplier = 3f;
             health = 260;

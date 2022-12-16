@@ -2,16 +2,15 @@ package tranqol.world.blocks.liquid;
 
 import arc.graphics.g2d.*;
 import arc.math.*;
-import arc.util.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.blocks.liquid.*;
 import mindustry.world.meta.*;
 
-public class LiquidOverflowGate extends LiquidBlock{
+public class LiquidOverflowValve extends LiquidBlock{
     public boolean invert = false;
 
-    public LiquidOverflowGate(String name){
+    public LiquidOverflowValve(String name){
         super(name);
         canOverdrive = false;
     }
@@ -33,7 +32,7 @@ public class LiquidOverflowGate extends LiquidBlock{
         return new TextureRegion[]{region};
     }
 
-    public class LiquidOverfloatGateBuild extends Building{
+    public class LiquidOverfloatValveBuild extends Building{
         @Override
         public void draw(){
             Draw.rect(region, x, y);
