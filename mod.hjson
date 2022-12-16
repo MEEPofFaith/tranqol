@@ -1,5 +1,5 @@
 #the mod name as displayed in-game
-displayName: "TranQOL"
+displayName: "Tranqol"
 
 #the internal name of your mod
 name: "tranqol"
@@ -8,7 +8,7 @@ name: "tranqol"
 author: "MEEPofFaith"
 
 #the fully qualified main class of the mod
-main: "tranqol.TranQOL"
+main: "tranqol.Tranqol"
 
 #the mod description as seen in the mod dialog
 description: "Give yourself a tranquil feeling with more control over the flow of resources."

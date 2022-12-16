@@ -3,13 +3,13 @@ package tranqol;
 import mindustry.mod.*;
 import tranqol.content.*;
 
-public class TranQOL extends Mod{
+public class Tranqol extends Mod{
 
-    public TranQOL(){}
+    public Tranqol(){}
 
     @Override
     public void loadContent(){
-        TranQOLBlocks.load();
-        TranQOLTechTree.load();
+        TranqolBlocks.load();
+        TranqolTechTree.load();
     }
 }

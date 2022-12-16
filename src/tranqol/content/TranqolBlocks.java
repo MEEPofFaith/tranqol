@@ -8,7 +8,7 @@ import tranqol.world.blocks.power.*;
 
 import static mindustry.type.ItemStack.*;
 
-public class TranQOLBlocks{
+public class TranqolBlocks{
     public static Block
 
     // region liquid

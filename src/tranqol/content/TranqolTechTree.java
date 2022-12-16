@@ -9,10 +9,10 @@ import mindustry.game.Objectives.*;
 import mindustry.type.*;
 
 import static mindustry.content.Blocks.*;
-import static tranqol.content.TranQOLBlocks.*;
+import static tranqol.content.TranqolBlocks.*;
 
 
-public class TranQOLTechTree{
+public class TranqolTechTree{
     static TechTree.TechNode context = null;
 
     public static void load(){
