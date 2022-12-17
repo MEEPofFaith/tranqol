@@ -13,6 +13,7 @@ public class LiquidOverflowValve extends LiquidBlock{
     public LiquidOverflowValve(String name){
         super(name);
         canOverdrive = false;
+        instantTransfer = true;
     }
 
     @Override
@@ -39,23 +40,38 @@ public class LiquidOverflowValve extends LiquidBlock{
         }
 
         @Override
-        public Building getLiquidDestination(Building source, Liquid liquid){
-            if(!enabled) return this;
+        public boolean acceptLiquid(Building source, Liquid liquid){
+            Building to = getTileTarget(source, liquid);
+
+            return to != null && to.team == team && to.acceptLiquid(this, liquid) && to.liquids.get(liquid) < to.block.liquidCapacity;
+        }
+
+        @Override
+        public void handleLiquid(Building source, Liquid liquid, float amount){
+            Building target = getTileTarget(source, liquid);
+
+            if(target != null) target.handleLiquid(this, liquid, amount);
+        }
+
+        public Building getTileTarget(Building source, Liquid liquid){
+            if(!enabled) return null;
 
             int from = relativeToEdge(source.tile);
-            if(from == -1) return this;
+            if(from == -1) return null;
 
             Building to = nearby((from + 2) % 4);
-            boolean canForward = to != null && to.team == team && to.acceptLiquid(this, liquid) && to.liquids.get(liquid) < to.block.liquidCapacity;
+            boolean
+                fromInst = source.block.instantTransfer,
+                canForward = to != null && to.team == team && !(fromInst && to.block.instantTransfer) && to.acceptLiquid(this, liquid) && to.liquids.get(liquid) < to.block.liquidCapacity;
 
             if(!canForward || invert){
                 Building a = nearby(Mathf.mod(from - 1, 4));
                 Building b = nearby(Mathf.mod(from + 1, 4));
-                boolean ac = a != null && a.team == team && a.acceptLiquid(this, liquid) && a.liquids.get(liquid) < a.block.liquidCapacity;
-                boolean bc = b != null && b.team == team && b.acceptLiquid(this, liquid) && b.liquids.get(liquid) < b.block.liquidCapacity;
+                boolean ac = a != null && a.team == team && !(fromInst && a.block.instantTransfer) && a.acceptLiquid(this, liquid) && a.liquids.get(liquid) < a.block.liquidCapacity;
+                boolean bc = b != null && b.team == team && !(fromInst && b.block.instantTransfer) && b.acceptLiquid(this, liquid) && b.liquids.get(liquid) < b.block.liquidCapacity;
 
                 if(!ac && !bc){
-                    return invert && canForward ? to : this;
+                    return invert && canForward ? to : null;
                 }
 
                 if(ac && !bc){
@@ -67,7 +83,7 @@ public class LiquidOverflowValve extends LiquidBlock{
                 }
             }
 
-            return to;
+            return to instanceof LiquidOverfloatValveBuild v ? v.getLiquidDestination(this, liquid) : to;
         }
     }
 }
