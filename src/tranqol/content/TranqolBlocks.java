@@ -13,7 +13,7 @@ public class TranqolBlocks{
 
     // region liquid
 
-        liquidOverflowValve, liquidUnderflowValve,
+    liquidOverflowValve, liquidUnderflowValve, liquidUnloader,
 
     // region liquid - Erekir
 
@@ -40,6 +40,11 @@ public class TranqolBlocks{
             solid = false;
             underBullets = true;
             invert = true;
+        }};
+
+        liquidUnloader = new LiquidUnloader("liquid-unloader"){{
+            requirements(Category.liquid, with(Items.titanium, 15, Items.metaglass, 10));
+            hideDetails = false;
         }};
 
         // endregion
