@@ -17,7 +17,7 @@ public class TranqolBlocks{
 
     // region liquid - Erekir
 
-    reinforcedLiquidOverflowValve, reinforcedLiquidUnderflowValve,
+    reinforcedLiquidOverflowValve, reinforcedLiquidUnderflowValve, reinforcedLiquidUnloader,
 
     // endregion
     // region power - Erekir
@@ -44,6 +44,7 @@ public class TranqolBlocks{
 
         liquidUnloader = new LiquidUnloader("liquid-unloader"){{
             requirements(Category.liquid, with(Items.titanium, 15, Items.metaglass, 10));
+            health = 70;
             hideDetails = false;
         }};
 
@@ -65,6 +66,15 @@ public class TranqolBlocks{
             health = 260;
             researchCostMultiplier = 1;
             invert = true;
+            solid = false;
+            underBullets = true;
+        }};
+
+        reinforcedLiquidUnloader = new DirectionalLiquidUnloader("reinforced-liquid-unloader"){{
+            requirements(Category.liquid, with(Items.tungsten, 10, Items.beryllium, 15));
+            buildCostMultiplier = 3f;
+            health = 570;
+            researchCostMultiplier = 1;
             solid = false;
             underBullets = true;
         }};

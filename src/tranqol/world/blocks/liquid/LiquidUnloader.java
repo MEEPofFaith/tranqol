@@ -32,8 +32,8 @@ public class LiquidUnloader extends LiquidBlock{
         clearOnDoubleTap = true;
         unloadable = false;
 
-        config(Liquid.class, (LiquidUnloaderBuild tile, Liquid liquid) -> tile.sortLiquid = liquid);
-        configClear((LiquidUnloaderBuild tile) -> tile.sortLiquid = null);
+        config(Liquid.class, (LiquidUnloaderBuild tile, Liquid liquid) -> tile.unloadLiquid = liquid);
+        configClear((LiquidUnloaderBuild tile) -> tile.unloadLiquid = null);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class LiquidUnloader extends LiquidBlock{
     }
 
     public class LiquidUnloaderBuild extends Building{
-        public Liquid sortLiquid = null;
+        public Liquid unloadLiquid = null;
         public LiquidContainerStat dumpingFrom, dumpingTo;
         public final Seq<LiquidContainerStat> possibleBlocks = new Seq<>();
 
@@ -146,11 +146,11 @@ public class LiquidUnloader extends LiquidBlock{
             if(possibleBlocks.size < 2) return;
 
             //Only extract 1 liquid at a time. You never liquids in pipes anyways.
-            if(sortLiquid != null && isPossibleLiquid(sortLiquid)){
+            if(unloadLiquid != null && isPossibleLiquid(unloadLiquid)){
                 for(int i = 0; i < possibleBlocks.size; i++){
                     var pb = possibleBlocks.get(i);
                     var other = pb.building;
-                    pb.loadFactor = (other.block.liquidCapacity == 0) || (other.liquids == null) ? 0 : other.liquids.get(sortLiquid) / other.block.liquidCapacity;
+                    pb.loadFactor = (other.block.liquidCapacity == 0) || (other.liquids == null) ? 0 : other.liquids.get(unloadLiquid) / other.block.liquidCapacity;
                     pb.lastUsed = (pb.lastUsed + 1) % Integer.MAX_VALUE; //increment the priority if not used
                 }
 
@@ -177,13 +177,13 @@ public class LiquidUnloader extends LiquidBlock{
 
                 //trade the liquids
                 if(dumpingFrom != null && dumpingTo != null && (dumpingFrom.loadFactor != dumpingTo.loadFactor || !dumpingFrom.canLoad)){
-                    float ofract = dumpingTo.building.liquids.get(sortLiquid) / dumpingTo.building.block.liquidCapacity;
-                    float fract = dumpingFrom.building.liquids.get(sortLiquid) / dumpingFrom.building.block.liquidCapacity * dumpingFrom.building.block.liquidPressure;
-                    float flow = Math.min(Mathf.clamp(fract - ofract) * dumpingFrom.building.block.liquidCapacity, dumpingFrom.building.liquids.get(sortLiquid));
-                    flow = Math.min(flow, dumpingTo.building.block.liquidCapacity - dumpingTo.building.liquids.get(sortLiquid));
+                    float ofract = dumpingTo.building.liquids.get(unloadLiquid) / dumpingTo.building.block.liquidCapacity;
+                    float fract = dumpingFrom.building.liquids.get(unloadLiquid) / dumpingFrom.building.block.liquidCapacity * dumpingFrom.building.block.liquidPressure;
+                    float flow = Math.min(Mathf.clamp(fract - ofract) * dumpingFrom.building.block.liquidCapacity, dumpingFrom.building.liquids.get(unloadLiquid));
+                    flow = Math.min(flow, dumpingTo.building.block.liquidCapacity - dumpingTo.building.liquids.get(unloadLiquid));
 
-                    dumpingTo.building.handleLiquid(this, sortLiquid, flow);
-                    dumpingFrom.building.liquids.remove(sortLiquid, flow);
+                    dumpingTo.building.handleLiquid(this, unloadLiquid, flow);
+                    dumpingFrom.building.liquids.remove(unloadLiquid, flow);
                     dumpingTo.lastUsed = 0;
                     dumpingFrom.lastUsed = 0;
                 }
@@ -194,32 +194,32 @@ public class LiquidUnloader extends LiquidBlock{
         public void draw(){
             super.draw();
 
-            Draw.color(sortLiquid == null ? Color.clear : sortLiquid.color);
+            Draw.color(unloadLiquid == null ? Color.clear : unloadLiquid.color);
             Draw.rect(centerRegion, x, y);
             Draw.color();
         }
 
         @Override
         public void buildConfiguration(Table table){
-            ItemSelection.buildTable(LiquidUnloader.this, table, content.liquids(), () -> sortLiquid, this::configure, selectionRows, selectionColumns);
+            ItemSelection.buildTable(LiquidUnloader.this, table, content.liquids(), () -> unloadLiquid, this::configure, selectionRows, selectionColumns);
         }
 
         @Override
         public Liquid config(){
-            return sortLiquid;
+            return unloadLiquid;
         }
 
         @Override
         public void write(Writes write){
             super.write(write);
-            write.s(sortLiquid == null ? -1 : sortLiquid.id);
+            write.s(unloadLiquid == null ? -1 : unloadLiquid.id);
         }
 
         @Override
         public void read(Reads read, byte revision){
             super.read(read, revision);
             int id = read.s();
-            sortLiquid = id == -1 ? null : content.liquid(id);
+            unloadLiquid = id == -1 ? null : content.liquid(id);
         }
     }
 }
