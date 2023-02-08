@@ -3,6 +3,7 @@ package tranqol.content;
 import mindustry.content.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import tranqol.world.blocks.distribution.*;
 import tranqol.world.blocks.liquid.*;
 import tranqol.world.blocks.power.*;
 
@@ -10,6 +11,10 @@ import static mindustry.type.ItemStack.*;
 
 public class TranqolBlocks{
     public static Block
+
+    // region distribution
+
+    ductJunction,
 
     // region liquid
 
@@ -27,6 +32,14 @@ public class TranqolBlocks{
     // endregion
 
     public static void load(){
+        // region distribution
+
+        ductJunction = new DuctJunction("duct-junction"){{
+            requirements(Category.distribution, with(Items.beryllium, 2));
+            health = 75;
+            speed = 4f;
+        }};
+
         // region liquid
 
         liquidOverflowValve = new LiquidOverflowValve("liquid-overflow-valve"){{
