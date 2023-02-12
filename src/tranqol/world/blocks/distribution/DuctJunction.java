@@ -1,9 +1,9 @@
 package tranqol.world.blocks.distribution;
 
 import arc.*;
+import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
-import arc.math.geom.*;
 import arc.util.*;
 import arc.util.io.*;
 import mindustry.entities.*;
@@ -18,6 +18,7 @@ import static mindustry.Vars.*;
 
 public class DuctJunction extends Block{
     public float speed = 5f;
+    public Color transparentColor = new Color(0.4f, 0.4f, 0.4f, 0.1f);
     public TextureRegion bottomRegion;
 
     public DuctJunction(String name){
@@ -83,6 +84,9 @@ public class DuctJunction extends Block{
             }
 
             Draw.z(Layer.blockUnder + 0.2f);
+            Draw.color(transparentColor);
+            Draw.rect(bottomRegion, x, y);
+            Draw.color();
             Draw.rect(region, x, y);
         }
 
