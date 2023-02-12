@@ -78,10 +78,7 @@ public class DuctJunction extends Block{
             for(int i = 0; i < 2; i++){
                 if(current[i] == null) continue;
 
-                Tmp.v1.set(-Geometry.d4x(from[i]) * tilesize / 2f, -Geometry.d4y(from[i]) * tilesize / 2f)
-                    .lerp(Geometry.d4x(from[i]) * tilesize / 2f, Geometry.d4y(from[i]) * tilesize / 2f,
-                    Mathf.clamp((progress[i] + 1f) / 2f));
-
+                Tmp.v1.trns(from[i] * 90f, tilesize / 2f * Mathf.lerp(-1, 1, Mathf.clamp((progress[i] + 1f) / 2f)));
                 Draw.rect(current[i].fullIcon, x + Tmp.v1.x, y + Tmp.v1.y, itemSize, itemSize);
             }
 
