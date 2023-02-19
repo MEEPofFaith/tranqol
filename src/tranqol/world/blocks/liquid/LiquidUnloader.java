@@ -14,6 +14,7 @@ import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.blocks.*;
 import mindustry.world.blocks.liquid.*;
+import mindustry.world.meta.*;
 
 import java.util.*;
 
@@ -51,6 +52,12 @@ public class LiquidUnloader extends LiquidBlock{
     @Override
     public void drawPlanConfig(BuildPlan plan, Eachable<BuildPlan> list){
         drawPlanConfigCenter(plan, plan.config, "tranqol-liquid-unloader-center");
+    }
+    
+    @Override
+    public void setStats(){
+        super.setStats();
+        stats.remove(Stat.liquidCapacity);
     }
 
     @Override
