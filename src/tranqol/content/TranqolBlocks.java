@@ -5,6 +5,7 @@ import mindustry.type.*;
 import mindustry.world.*;
 import tranqol.world.blocks.distribution.*;
 import tranqol.world.blocks.liquid.*;
+import tranqol.world.blocks.payload.*;
 import tranqol.world.blocks.power.*;
 
 import static mindustry.type.ItemStack.*;
@@ -12,11 +13,11 @@ import static mindustry.type.ItemStack.*;
 public class TranqolBlocks{
     public static Block
 
-    // region distribution
+    // region distribution - Erekir
 
     ductJunction,
 
-    // region liquid
+    // region liquid - Serpulo
 
     liquidOverflowValve, liquidUnderflowValve, liquidUnloader,
 
@@ -25,6 +26,15 @@ public class TranqolBlocks{
     reinforcedLiquidOverflowValve, reinforcedLiquidUnderflowValve, reinforcedLiquidUnloader,
 
     // endregion
+    // region payload - Serpulo
+
+    payloadJunction,
+
+    // endregion
+    // region payload - Erekir
+
+    reinforcedPayloadJunction,
+
     // region power - Erekir
 
     beamDiode;
@@ -32,7 +42,7 @@ public class TranqolBlocks{
     // endregion
 
     public static void load(){
-        // region distribution
+        // region distribution - Erekir
 
         ductJunction = new DuctJunction("duct-junction"){{
             requirements(Category.distribution, with(Items.beryllium, 2));
@@ -40,7 +50,7 @@ public class TranqolBlocks{
             speed = 4f;
         }};
 
-        // region liquid
+        // region liquid - Serpulo
 
         liquidOverflowValve = new LiquidOverflowValve("liquid-overflow-valve"){{
             requirements(Category.liquid, with(Items.graphite, 6, Items.metaglass, 10));
@@ -93,7 +103,29 @@ public class TranqolBlocks{
         }};
 
         // endregion
-        // region power -
+        // region payload - Serpulo
+
+        payloadJunction = new PayloadJunction("payload-junction"){{
+            requirements(Category.units, with(Items.graphite, 10, Items.copper, 15));
+            canOverdrive = false;
+            payloadLimit = 2f;
+        }};
+
+        // endregion
+        // region payload - Erekir
+
+        reinforcedPayloadJunction = new PayloadJunction("reinforced-payload-junction"){{
+            requirements(Category.units, with(Items.tungsten, 10, Items.beryllium, 5));
+            moveTime = 35f;
+            canOverdrive = false;
+            payloadLimit = 2f;
+            health = 800;
+            researchCostMultiplier = 4f;
+            underBullets = true;
+        }};
+
+        // endregion
+        // region power - Erekir
 
         beamDiode = new BeamDiode("beam-diode"){{
             requirements(Category.power, with(
