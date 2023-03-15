@@ -109,6 +109,7 @@ public class TranqolBlocks{
             requirements(Category.units, with(Items.graphite, 10, Items.copper, 15, Items.phaseFabric, 5));
             canOverdrive = false;
             payloadLimit = 2f;
+            hideDetails = false;
         }};
 
         // endregion
@@ -122,6 +123,7 @@ public class TranqolBlocks{
             health = 800;
             researchCostMultiplier = 4f;
             underBullets = true;
+            hideDetails = false;
         }};
 
         // endregion
