@@ -20,10 +20,18 @@ public class TranqolTechTree{
             node(liquidOverflowValve);
             node(liquidUnderflowValve);
         });
+        
+        vanillaNode(payloadRouter, () -> {
+            node(payloadJunction);
+        });
 
         vanillaNode("erekir", reinforcedLiquidRouter, () -> {
             node(reinforcedLiquidOverflowValve);
             node(reinforcedLiquidUnderflowValve);
+        });
+        
+        vanillaNode("erekir", reinforcedPayloadRouter, () -> {
+            node(reinforcedPayloadJunction);
         });
 
         vanillaNode("erekir", beamTower, () -> {
