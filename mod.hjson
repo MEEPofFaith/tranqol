@@ -14,7 +14,7 @@ main: "tranqol.Tranqol"
 description: "Give yourself a tranquil feeling with more control over the flow of resources."
 
 #the mod version
-version: 1
+version: v2
 
 #the minimum game build required to run this mod
 minGameVersion: 140.1
