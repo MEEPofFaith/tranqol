@@ -134,7 +134,6 @@ public class PayloadJunction extends Block{
         }
 
         public void updatePayloads(){
-
             for(int i = 0; i < 2; i++){
                 if(payloads[i] != null){
                     if(animation[i] > fract()){
@@ -218,7 +217,7 @@ public class PayloadJunction extends Block{
         @Override
         public boolean acceptPayload(Building source, Payload payload){
             int relative = source.relativeTo(tile);
-            return payloads[relative % 2] == null && payload.fits(payloadLimit) && (source == this || enabled && progress <= 5);
+            return source != this && payloads[relative % 2] == null && payload.fits(payloadLimit) && enabled && progress <= 5;
         }
 
         @Override
