@@ -20,6 +20,7 @@ public class PayloadJunction extends Block{
     public Interp interp = Interp.pow5;
     public float payloadLimit = 3f;
     public TextureRegion topRegion, lightRegion;
+    public TextureRegion[] dLightRegions;
 
     public PayloadJunction(String name){
         super(name);
@@ -38,6 +39,11 @@ public class PayloadJunction extends Block{
         super.load();
         topRegion = Core.atlas.find(name + "-top");
         lightRegion = Core.atlas.find(name + "-light");
+
+        TextureRegion hLightRegion = Core.atlas.find(name + "-light-h");
+        if(hLightRegion.found()){
+            dLightRegions = new TextureRegion[]{hLightRegion, Core.atlas.find(name + "-light-v")};
+        }
     }
 
     @Override
@@ -173,11 +179,19 @@ public class PayloadJunction extends Block{
             Draw.z(Layer.blockOver + 0.2f);
             Draw.rect(topRegion, x, y);
 
+            float dst = 0.8f;
+            float glow = Math.max((dst - (Math.abs(fract() - 0.5f) * 2)) / dst, 0);
             if(lightRegion.found()){
-                float dst = 0.8f;
-                float glow = Math.max((dst - (Math.abs(fract() - 0.5f) * 2)) / dst, 0);
                 Draw.mixcol(team.color, glow);
                 Draw.rect(lightRegion, x, y);
+                Draw.mixcol();
+            }
+            if(dLightRegions != null){
+                for(int i = 0; i < 2; i++){
+                    if(payloads[i] != null) Draw.mixcol(team.color, glow);
+                    Draw.rect(dLightRegions[i], x, y);
+                    Draw.mixcol();
+                }
             }
         }
 
