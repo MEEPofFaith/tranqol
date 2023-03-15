@@ -106,7 +106,7 @@ public class TranqolBlocks{
         // region payload - Serpulo
 
         payloadJunction = new PayloadJunction("payload-junction"){{
-            requirements(Category.units, with(Items.graphite, 10, Items.copper, 15));
+            requirements(Category.units, with(Items.graphite, 10, Items.copper, 15, Items.phaseFabric, 5));
             canOverdrive = false;
             payloadLimit = 2f;
         }};
@@ -115,7 +115,7 @@ public class TranqolBlocks{
         // region payload - Erekir
 
         reinforcedPayloadJunction = new PayloadJunction("reinforced-payload-junction"){{
-            requirements(Category.units, with(Items.tungsten, 10, Items.beryllium, 5));
+            requirements(Category.units, with(Items.tungsten, 10, Items.beryllium, 5, Items.phaseFabric, 5));
             moveTime = 35f;
             canOverdrive = false;
             payloadLimit = 2f;
