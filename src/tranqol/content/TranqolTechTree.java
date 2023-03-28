@@ -21,17 +21,35 @@ public class TranqolTechTree{
             node(liquidUnderflowValve);
         });
         
-        vanillaNode(payloadRouter, () -> {
-            node(payloadJunction);
+        vanillaNode(payloadConveyor, () -> {
+            node(payloadJunction, () -> {
+                rebaseNode(payloadRouter);
+            });
+        });
+
+        vanillaNode(liquidContainer, () -> {
+            node(liquidUnloader);
+        });
+
+        vanillaNode("erekir", duct, () -> {
+            node(ductJunction, () -> {
+                rebaseNode("erekir", ductRouter);
+            });
         });
 
         vanillaNode("erekir", reinforcedLiquidRouter, () -> {
             node(reinforcedLiquidOverflowValve);
             node(reinforcedLiquidUnderflowValve);
         });
-        
-        vanillaNode("erekir", reinforcedPayloadRouter, () -> {
-            node(reinforcedPayloadJunction);
+
+        vanillaNode("erekir", reinforcedPayloadConveyor, () -> {
+            node(reinforcedPayloadJunction, () -> {
+                rebaseNode("erekir", reinforcedPayloadRouter);
+            });
+        });
+
+        vanillaNode("erekir", reinforcedLiquidContainer, () -> {
+            node(reinforcedLiquidUnloader);
         });
 
         vanillaNode("erekir", beamTower, () -> {
@@ -55,6 +73,36 @@ public class TranqolTechTree{
             if(search != null) return search;
         }
         return null;
+    }
+
+    private static void rebaseNode(Content next){
+        rebaseNode("serpulo", next);
+    }
+
+    /** Moves a node from one parent to the context node. */
+    private static void rebaseNode(String tree, Content next){
+        TechNode oldNode = findNode(TechTree.roots.find(r -> r.name.equals(tree)), n -> n.content == next);
+        oldNode.parent.children.remove(oldNode);
+        context.children.add(oldNode);
+        oldNode.parent = context;
+
+        if(oldNode.researchCostMultipliers != context.researchCostMultipliers){
+            //Reset multipliers
+            ItemStack[] req = ItemStack.copy(oldNode.requirements);
+            if(oldNode.researchCostMultipliers.size > 0){
+                for(ItemStack itemStack : req){
+                    itemStack.amount /= oldNode.researchCostMultipliers.get(itemStack.item, 1f);
+                }
+            }
+
+            //Apply new multipliers
+            if(context.researchCostMultipliers.size > 0){
+                for(ItemStack itemStack : req){
+                    itemStack.amount *= context.researchCostMultipliers.get(itemStack.item, 1f);
+                }
+            }
+            oldNode.requirements = req;
+        }
     }
 
     private static void node(UnlockableContent content, ItemStack[] requirements, Seq<Objective> objectives, Runnable children){
