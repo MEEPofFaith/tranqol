@@ -79,7 +79,7 @@ public class TranqolTechTree{
         rebaseNode("serpulo", next);
     }
 
-    /** Moves a node from one parent to the context node. */
+    /** Moves a node from its parent to the context node. */
     private static void rebaseNode(String tree, Content next){
         TechNode oldNode = findNode(TechTree.roots.find(r -> r.name.equals(tree)), n -> n.content == next);
         oldNode.parent.children.remove(oldNode);
