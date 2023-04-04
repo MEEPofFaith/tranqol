@@ -1,6 +1,9 @@
 package tranqol.content;
 
+import arc.*;
+import mindustry.*;
 import mindustry.content.*;
+import mindustry.game.EventType.*;
 import mindustry.type.*;
 import mindustry.world.*;
 import tranqol.world.blocks.distribution.*;
@@ -114,6 +117,14 @@ public class TranqolBlocks{
 
         // endregion
         // region payload - Erekir
+
+        if(!Vars.headless){
+            Events.on(ContentInitEvent.class, e -> Core.app.post(() -> {
+                //Force load my overrides.
+                Blocks.reinforcedPayloadConveyor.fullIcon = Blocks.reinforcedPayloadConveyor.uiIcon = Core.atlas.find("tranqol-reinforced-payload-conveyor-icon");
+                Blocks.reinforcedPayloadRouter.fullIcon = Blocks.reinforcedPayloadRouter.uiIcon = Core.atlas.find("tranqol-reinforced-payload-router-icon");
+            }));
+        }
 
         reinforcedPayloadJunction = new PayloadJunction("reinforced-payload-junction"){{
             requirements(Category.units, with(Items.tungsten, 10, Items.beryllium, 5, Items.phaseFabric, 5));
