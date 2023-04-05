@@ -6,6 +6,7 @@ import mindustry.content.*;
 import mindustry.game.EventType.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import tranqol.world.blocks.defense.*;
 import tranqol.world.blocks.distribution.*;
 import tranqol.world.blocks.liquid.*;
 import tranqol.world.blocks.payload.*;
@@ -40,7 +41,7 @@ public class TranqolBlocks{
 
     // region power - Erekir
 
-    beamDiode;
+    beamInsulator, beamDiode;
 
     // endregion
 
@@ -139,6 +140,14 @@ public class TranqolBlocks{
 
         // endregion
         // region power - Erekir
+
+        beamInsulator = new InsulationWall("beam-insulator"){{
+            requirements(Category.power, with(
+                Items.silicon, 10,
+                Items.oxide, 5
+            ));
+            health = 90;
+        }};
 
         beamDiode = new BeamDiode("beam-diode"){{
             requirements(Category.power, with(
