@@ -22,7 +22,9 @@ public class TranqolTechTree{
         });
         
         vanillaNode(payloadConveyor, () -> {
-            node(payloadJunction);
+            node(payloadJunction, () -> {
+                rebaseNode(payloadRouter);
+            });
         });
 
         vanillaNode(liquidContainer, () -> {
@@ -41,7 +43,9 @@ public class TranqolTechTree{
         });
 
         vanillaNode("erekir", reinforcedPayloadConveyor, () -> {
-            node(reinforcedPayloadJunction);
+            node(reinforcedPayloadJunction, () -> {
+                rebaseNode("erekir", reinforcedPayloadRouter);
+            });
         });
 
         vanillaNode("erekir", reinforcedLiquidContainer, () -> {
