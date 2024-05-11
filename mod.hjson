@@ -17,7 +17,7 @@ description: "Give yourself a tranquil feeling with more control over the flow o
 version: v4
 
 #the minimum game build required to run this mod
-minGameVersion: 140.1
+minGameVersion: 146
 
 #this is a java mod
 java: true
