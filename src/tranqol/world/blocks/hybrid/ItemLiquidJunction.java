@@ -1,8 +1,11 @@
 package tranqol.world.blocks.hybrid;
 
+import arc.*;
+import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.util.*;
 import arc.util.io.*;
+import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.*;
@@ -15,14 +18,42 @@ public class ItemLiquidJunction extends LiquidBlock{
     public float speed = 26; //frames taken for item go through this junction
     public int capacity = 6;
 
+    protected TextureRegion[][] directionRegions;
+
     public ItemLiquidJunction(String name){
         super(name);
 
         rotate = true;
-        //rotateDraw = false;
+        rotateDraw = false;
+        drawArrow = false;
         unloadable = false;
         floating = true;
         noUpdateDisabled = true;
+    }
+
+    @Override
+    public void load(){
+        super.load();
+
+        directionRegions = new TextureRegion[2][2];
+        for(int j = 0; j <= 1; j++){
+            directionRegions[j][0] = Core.atlas.find(name + "-item" + j, name + "-item");
+            directionRegions[j][1] = Core.atlas.find(name + "-liquid" + j, name + "-liquid");
+        }
+    }
+
+    @Override
+    public void drawPlanRegion(BuildPlan plan, Eachable<BuildPlan> list){
+        super.drawPlanRegion(plan, list);
+
+        for(int i = 0; i < 4; i++){
+            Draw.rect(directionRegions[i > 1 ? 1 : 0][(plan.rotation + i) % 2], plan.drawx(), plan.drawy(), i * 90f);
+        }
+    }
+
+    @Override
+    public TextureRegion[] icons(){
+        return new TextureRegion[]{region};
     }
 
     @Override
@@ -44,6 +75,15 @@ public class ItemLiquidJunction extends LiquidBlock{
 
     public class ItemLiquidJunctionBuild extends LiquidBuild{
         public DirectionalItemBuffer buffer = new DirectionalItemBuffer(capacity);
+
+        @Override
+        public void draw(){
+            Draw.rect(region, x, y);
+
+            for(int i = 0; i < 4; i++){
+                Draw.rect(directionRegions[i > 1 ? 1 : 0][(rotation + i) % 2], x, y, i * 90f);
+            }
+        }
 
         @Override
         public Building getLiquidDestination(Building source, Liquid liquid){
