@@ -5,6 +5,7 @@ import mindustry.type.*;
 import mindustry.world.*;
 import tranqol.world.blocks.defense.*;
 import tranqol.world.blocks.distribution.*;
+import tranqol.world.blocks.hybrid.*;
 import tranqol.world.blocks.liquid.*;
 import tranqol.world.blocks.payload.*;
 import tranqol.world.blocks.power.*;
@@ -18,13 +19,20 @@ public class TranqolBlocks{
 
     ductJunction,
 
+    // endregion
     // region liquid - Serpulo
 
     liquidOverflowValve, liquidUnderflowValve, liquidUnloader,
 
+    // endregion
     // region liquid - Erekir
 
     reinforcedLiquidOverflowValve, reinforcedLiquidUnderflowValve, reinforcedLiquidUnloader,
+
+    // endregion
+    // region hybrid - Serpulo
+
+    itemLiquidJunction,
 
     // endregion
     // region payload - Serpulo
@@ -36,6 +44,7 @@ public class TranqolBlocks{
 
     reinforcedPayloadJunction,
 
+    // endregion
     // region power - Erekir
 
     beamInsulator, beamDiode;
@@ -104,6 +113,11 @@ public class TranqolBlocks{
         }};
 
         // endregion
+
+        itemLiquidJunction = new ItemLiquidJunction("item-liquid-junction"){{
+            requirements(Category.distribution, with(Items.copper, 4, Items.graphite, 6, Items.metaglass, 10));
+        }};
+
         // region payload - Serpulo
 
         payloadJunction = new PayloadJunction("payload-junction"){{
