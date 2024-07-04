@@ -123,7 +123,6 @@ public class TranqolBlocks{
         payloadJunction = new PayloadJunction("payload-junction"){{
             requirements(Category.units, with(Items.graphite, 15, Items.copper, 20));
             canOverdrive = false;
-            payloadLimit = 2f;
             hideDetails = false;
         }};
 
@@ -134,7 +133,6 @@ public class TranqolBlocks{
             requirements(Category.units, with(Items.tungsten, 15, Items.beryllium, 10));
             moveTime = 35f;
             canOverdrive = false;
-            payloadLimit = 2f;
             health = 800;
             researchCostMultiplier = 4f;
             underBullets = true;
