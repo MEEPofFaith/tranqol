@@ -37,7 +37,7 @@ public class TranqolBlocks{
     // endregion
     // region payload - Serpulo
 
-    payloadJunction,
+    payloadJunction, payloadRail,
 
     // endregion
     // region payload - Erekir
@@ -124,6 +124,11 @@ public class TranqolBlocks{
             requirements(Category.units, with(Items.graphite, 15, Items.copper, 20));
             canOverdrive = false;
             hideDetails = false;
+        }};
+
+        payloadRail = new PayloadRail("payload-rail"){{
+            requirements(Category.units, with(Items.graphite, 15, Items.copper, 20));
+            canOverdrive = false;
         }};
 
         // endregion
