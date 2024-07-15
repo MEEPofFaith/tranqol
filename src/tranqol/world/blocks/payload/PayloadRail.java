@@ -1,5 +1,6 @@
 package tranqol.world.blocks.payload;
 
+import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
@@ -13,16 +14,19 @@ import mindustry.world.blocks.payloads.*;
 import static mindustry.Vars.*;
 
 public class PayloadRail extends PayloadBlock{
+    protected static float zeroPrecision = 0.1f;
+
     public float maxPayloadSize = 3f;
     public float railSpeed = -1f;
     public float followSpeed = 0.1f;
+    public float bufferDst = 1f;
     public float range = 10f * tilesize;
 
     public PayloadRail(String name){
         super(name);
         size = 3;
         configurable = true;
-        saveConfig = false;
+        copyConfig = false;
         outputsPayload = true;
         acceptsPayload = true;
         update = true;
@@ -50,18 +54,19 @@ public class PayloadRail extends PayloadBlock{
         if(tile == null || other == null || !positionsValid(tile.x, tile.y, other.x, other.y)) return false;
 
         return tile.block() == other.block()
-            && tile.within(other, range)
             && (!checkLink || ((other.build instanceof PayloadRailBuild b) && b.link == -1 && b.incoming == -1));
     }
 
     public boolean positionsValid(int x1, int y1, int x2, int y2){
-        if(x1 == x2){
-            return Math.abs(y1 - y2) <= range;
-        }else if(y1 == y2){
-            return Math.abs(x1 - x2) <= range;
-        }else{
-            return false;
-        }
+        return Mathf.dst(x1, y1, x2, y2) <= range;
+    }
+
+    @Override
+    public void drawOverlay(float x, float y, int rotation){
+        Lines.stroke(1f);
+        Draw.color(Pal.accent);
+        Drawf.circles(x, y, range);
+        Draw.reset();
     }
 
     /** Convert hitbox side length to corner dist. */
@@ -71,20 +76,38 @@ public class PayloadRail extends PayloadBlock{
     }
 
     public class PayloadRailBuild extends PayloadBlockBuild<Payload>{
-        public Seq<RailPayload> items = new Seq<>();
+        public Seq<RailPayload> items = new Seq<>(); //TODO read/write
         public int link = -1;
         public int incoming = -1;
 
         @Override
         public void draw(){
-            super.draw();
+            Draw.rect(region, x, y);
+
+            boolean fallback = true;
+            for(int i = 0; i < 4; ++i) {
+                if (blends(i) && i != rotation) {
+                    Draw.rect(inRegion, x, y, (float)(i * 90 - 180));
+                    fallback = false;
+                }
+            }
+
+            if (fallback) {
+                Draw.rect(inRegion, x, y, (float)(rotation * 90));
+            }
+
+            Draw.rect(outRegion, x, y, rotdeg());
+            Draw.rect(topRegion, x, y);
+            Draw.z(35f);
+            drawPayload();
 
             if(link == -1) return;
 
             Draw.z(Layer.power);
-            items.each(r -> r.payload.draw());
+            items.each(RailPayload::draw);
 
             PayloadRailBuild other = (PayloadRailBuild)world.build(link);
+            Lines.stroke(2, Color.red);
             Lines.line(x, y, other.x, other.y);
         }
 
@@ -96,14 +119,19 @@ public class PayloadRail extends PayloadBlock{
                 return;
             }
 
+            PayloadRailBuild other = (PayloadRailBuild)world.build(link);
+            if(other == null){
+                configure(-1);
+                return;
+            }
+
             if(moveInPayload()){
-                if(items.isEmpty() || dst(items.peek()) > items.peek().radius() + payRadius(payload)){
+                if(items.isEmpty() || dst(items.peek()) > items.peek().radius() + payRadius(payload) + bufferDst){
                     items.add(new RailPayload(payload, x, y));
                     payload = null;
                 }
             }
 
-            PayloadRailBuild other = (PayloadRailBuild)world.build(link);
             for(int i = 0; i < items.size; i++){
                 Position target = i == 0 ? other : items.get(i - 1);
                 items.get(i).update(target);
@@ -166,14 +194,15 @@ public class PayloadRail extends PayloadBlock{
             if(target == null) return;
 
             Tmp.v1.set(target);
+            Tmp.v2.set(this);
             if(target instanceof RailPayload r){
-                float dst = r.radius() + radius();
-                Tmp.v2.set(this);
+                float dst = r.radius() + radius() + bufferDst;
                 Tmp.v1.approach(Tmp.v2, dst);
             }
 
-            x = Mathf.approachDelta(x, Tmp.v1.x, railSpeed);
-            y = Mathf.approachDelta(y, Tmp.v1.y, railSpeed);
+            Tmp.v2.approachDelta(Tmp.v1, railSpeed);
+            x = Tmp.v2.x;
+            y = Tmp.v2.y;
 
             payload.set(
                 Mathf.lerpDelta(payload.x(), x, followSpeed),
@@ -182,8 +211,18 @@ public class PayloadRail extends PayloadBlock{
             );
         }
 
+        public void draw(){
+            //temp
+            payload.draw();
+            Lines.stroke(1f, Color.white);
+            Lines.line(payload.x(), payload.y(), x, y);
+            Draw.color(Pal.accent);
+            Fill.circle(x, y, 2f);
+            Draw.color();
+        }
+
         public boolean arrived(Position target){
-            return within(target, 0.001f) && payload.within(this, 0.001f);
+            return within(target, zeroPrecision) && payload.within(this, zeroPrecision);
         }
 
         public float radius(){
