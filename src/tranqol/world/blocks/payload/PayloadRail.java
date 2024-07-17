@@ -15,7 +15,7 @@ import mindustry.world.blocks.payloads.*;
 import static mindustry.Vars.*;
 
 public class PayloadRail extends PayloadBlock{
-    protected static float zeroPrecision = 0.1f;
+    protected static float zeroPrecision = 0.5f;
 
     public float maxPayloadSize = 3f;
     public float railSpeed = -1f;
@@ -126,6 +126,7 @@ public class PayloadRail extends PayloadBlock{
             if(checkLink()){
                 items.each(RailPayload::removed);
                 items.clear();
+                moveOutPayload();
                 return;
             }
 
@@ -284,7 +285,7 @@ public class PayloadRail extends PayloadBlock{
             payload.set(
                 Mathf.lerpDelta(payload.x(), x, followSpeed),
                 Mathf.lerpDelta(payload.y(), y, followSpeed),
-                Angles.moveToward(payload.rotation(), angleTo(target), payloadRotateSpeed * Time.delta)
+                Angles.moveToward(payload.rotation(), payload.angleTo(target), payloadRotateSpeed * Time.delta)
             );
         }
 
