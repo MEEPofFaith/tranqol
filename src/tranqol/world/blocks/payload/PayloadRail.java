@@ -159,7 +159,11 @@ public class PayloadRail extends PayloadBlock{
             updatePayload();
 
             if(rotate){
-                float rotTarget = link != -1 ? angleTo(world.tile(link)) : block.rotate ? rotdeg() : 90f;
+                PayloadRailBuild other = (PayloadRailBuild)world.build(link);
+                float rotTarget =
+                    other != null ? angleTo(other) :
+                    block.rotate ? rotdeg() :
+                    90f;
                 payRotation = Angles.moveToward(payRotation, rotTarget, payloadRotateSpeed * delta());
             }
             payVector.approach(Vec2.ZERO, payloadSpeed * delta());
@@ -316,13 +320,17 @@ public class PayloadRail extends PayloadBlock{
         public void write(Writes write){
             write.f(x);
             write.f(y);
-            payload.write(write);
+            Payload.write(payload, write);
+            write.f(payload.x());
+            write.f(payload.y());
+            write.f(payload.rotation());
         }
 
         public void read(Reads read){
             x = read.f();
             y = read.f();
             payload = Payload.read(read);
+            payload.set(read.f(), read.f(), read.f());
         }
     }
 }
