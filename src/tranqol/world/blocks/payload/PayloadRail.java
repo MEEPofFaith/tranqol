@@ -6,6 +6,7 @@ import arc.math.*;
 import arc.math.geom.*;
 import arc.struct.*;
 import arc.util.*;
+import arc.util.io.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.world.*;
@@ -26,18 +27,20 @@ public class PayloadRail extends PayloadBlock{
         super(name);
         size = 3;
         configurable = true;
-        copyConfig = false;
         outputsPayload = true;
         acceptsPayload = true;
         update = true;
         rotate = true;
         solid = true;
 
+        //Point2 is relative
+        config(Point2.class, (PayloadRailBuild build, Point2 point) -> {
+            build.link = Point2.pack(point.x + build.tileX(), point.y + build.tileY());
+        });
         config(Integer.class, (PayloadRailBuild build, Integer pos) -> {
             build.items.each(RailPayload::removed);
             build.items.clear();
             build.link = pos;
-            if(pos != -1) ((PayloadRailBuild)world.build(pos)).incoming = build.pos();
         });
 
     }
@@ -54,11 +57,11 @@ public class PayloadRail extends PayloadBlock{
         if(tile == null || other == null || !positionsValid(tile.x, tile.y, other.x, other.y)) return false;
 
         return tile.block() == other.block()
-            && (!checkLink || ((other.build instanceof PayloadRailBuild b) && b.link == -1 && b.incoming == -1));
+            && (!checkLink || ((other.build instanceof PayloadRailBuild b) && b.incoming == -1));
     }
 
     public boolean positionsValid(int x1, int y1, int x2, int y2){
-        return Mathf.dst(x1, y1, x2, y2) <= range;
+        return Mathf.dst(x1, y1, x2, y2) <= range / tilesize;
     }
 
     @Override
@@ -76,7 +79,7 @@ public class PayloadRail extends PayloadBlock{
     }
 
     public class PayloadRailBuild extends PayloadBlockBuild<Payload>{
-        public Seq<RailPayload> items = new Seq<>(); //TODO read/write
+        public Seq<RailPayload> items = new Seq<>();
         public int link = -1;
         public int incoming = -1;
 
@@ -107,6 +110,7 @@ public class PayloadRail extends PayloadBlock{
             items.each(RailPayload::draw);
 
             PayloadRailBuild other = (PayloadRailBuild)world.build(link);
+            if(other == null) return;
             Lines.stroke(2, Color.red);
             Lines.line(x, y, other.x, other.y);
         }
@@ -119,13 +123,15 @@ public class PayloadRail extends PayloadBlock{
                 return;
             }
 
-            PayloadRailBuild other = (PayloadRailBuild)world.build(link);
-            if(other == null){
-                configure(-1);
+            if(checkLink()){
+                items.each(RailPayload::removed);
+                items.clear();
                 return;
             }
 
-            if(moveInPayload()){
+            PayloadRailBuild other = (PayloadRailBuild)world.build(link);
+
+            if(moveInPayload(true)){
                 if(items.isEmpty() || dst(items.peek()) > items.peek().radius() + payRadius(payload) + bufferDst){
                     items.add(new RailPayload(payload, x, y));
                     payload = null;
@@ -139,7 +145,7 @@ public class PayloadRail extends PayloadBlock{
 
             if(items.any()){
                 RailPayload first = items.first();
-                if(first.arrived(other) && other.acceptPayload(this, first.payload)){
+                if(first.payArrived(other) && other.acceptPayload(this, first.payload)){
                     other.handlePayload(other, first.payload);
                     items.remove(0);
                 }
@@ -147,8 +153,28 @@ public class PayloadRail extends PayloadBlock{
         }
 
         @Override
+        public boolean moveInPayload(boolean rotate){
+            if(payload == null) return false;
+
+            updatePayload();
+
+            if(rotate){
+                float rotTarget = link != -1 ? angleTo(world.tile(link)) : block.rotate ? rotdeg() : 90f;
+                payRotation = Angles.moveToward(payRotation, rotTarget, payloadRotateSpeed * delta());
+            }
+            payVector.approach(Vec2.ZERO, payloadSpeed * delta());
+
+            return hasArrived();
+        }
+
+        @Override
+        public void handlePayload(Building source, Payload payload){
+            super.handlePayload(source, payload);
+        }
+
+        @Override
         public boolean onConfigureBuildTapped(Building other){
-            if(linkValid(tile, other.tile, true)){
+            if(linkValid(tile, other.tile, false)){
                 if(link == other.pos()){
                     configure(-1);
                 }else{
@@ -159,10 +185,57 @@ public class PayloadRail extends PayloadBlock{
             return true;
         }
 
+        /** @return true if link invalid */
+        public boolean checkLink(){
+            if(link == -1) return true;
+            PayloadRailBuild other = (PayloadRailBuild)world.build(link);
+            if(other == null){
+                return true;
+            }
+            if(other.incoming == -1){
+                other.incoming = tile.pos();
+            }
+            return other.incoming != tile.pos();
+        }
+
         public void checkIncoming(){
             Tile other = world.tile(incoming);
             if(!linkValid(tile, other, false) || ((PayloadRailBuild)other.build).link != pos()){
                 incoming = -1;
+            }
+        }
+
+        @Override
+        public Point2 config(){
+            if(tile == null) return null;
+            return Point2.unpack(link).sub(tile.x, tile.y);
+        }
+
+        @Override
+        public void write(Writes write){
+            super.write(write);
+
+            write.i(link);
+            write.i(incoming);
+            write.i(items.size);
+
+            for(RailPayload p : items){
+                p.write(write);
+            }
+        }
+
+        @Override
+        public void read(Reads read, byte revision){
+            super.read(read, revision);
+
+            link = read.i();
+            incoming = read.i();
+
+            int amount = read.i();
+            for(int i = 0; i < amount; i++){
+                RailPayload p = new RailPayload();
+                p.read(read);
+                items.add(p);
             }
         }
     }
@@ -207,7 +280,7 @@ public class PayloadRail extends PayloadBlock{
             payload.set(
                 Mathf.lerpDelta(payload.x(), x, followSpeed),
                 Mathf.lerpDelta(payload.y(), y, followSpeed),
-                payload.rotation()
+                Angles.moveToward(payload.rotation(), angleTo(target), payloadRotateSpeed * Time.delta)
             );
         }
 
@@ -221,8 +294,14 @@ public class PayloadRail extends PayloadBlock{
             Draw.color();
         }
 
-        public boolean arrived(Position target){
-            return within(target, zeroPrecision) && payload.within(this, zeroPrecision);
+        public boolean railArrived(Position target){
+            return Mathf.zero(target.getX() - x, zeroPrecision)
+                && Mathf.zero(target.getY() - y, zeroPrecision);
+        }
+
+        public boolean payArrived(Position target){
+            return Mathf.zero(target.getX() - payload.x(), zeroPrecision)
+                && Mathf.zero(target.getY() - payload.y(), zeroPrecision);
         }
 
         public float radius(){
@@ -232,6 +311,18 @@ public class PayloadRail extends PayloadBlock{
         public void removed(){
             payload.dump();
             payload = null;
+        }
+
+        public void write(Writes write){
+            write.f(x);
+            write.f(y);
+            payload.write(write);
+        }
+
+        public void read(Reads read){
+            x = read.f();
+            y = read.f();
+            payload = Payload.read(read);
         }
     }
 }
