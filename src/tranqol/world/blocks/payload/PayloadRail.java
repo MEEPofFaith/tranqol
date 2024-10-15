@@ -154,6 +154,13 @@ public class PayloadRail extends PayloadBlock{
         }
 
         @Override
+        public void remove(){
+            super.remove();
+            items.each(RailPayload::removed);
+            items.clear();
+        }
+
+        @Override
         public boolean moveInPayload(boolean rotate){
             if(payload == null) return false;
 
@@ -179,7 +186,7 @@ public class PayloadRail extends PayloadBlock{
 
         @Override
         public boolean onConfigureBuildTapped(Building other){
-            if(linkValid(tile, other.tile, false)){
+            if(linkValid(tile, other.tile, true)){
                 if(link == other.pos()){
                     configure(-1);
                 }else{
