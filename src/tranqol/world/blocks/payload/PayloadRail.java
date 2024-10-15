@@ -7,6 +7,7 @@ import arc.math.geom.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
+import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.world.*;
@@ -42,7 +43,6 @@ public class PayloadRail extends PayloadBlock{
             build.items.clear();
             build.link = pos;
         });
-
     }
 
     @Override
@@ -78,6 +78,19 @@ public class PayloadRail extends PayloadBlock{
         return Mathf.sqrt(2 * a * a);
     }
 
+    @Override
+    public TextureRegion[] icons(){
+        return new TextureRegion[]{region, inRegion, outRegion, topRegion};
+    }
+
+    @Override
+    public void drawPlanRegion(BuildPlan plan, Eachable<BuildPlan> list){
+        Draw.rect(region, plan.drawx(), plan.drawy());
+        Draw.rect(inRegion, plan.drawx(), plan.drawy(), plan.rotation * 90);
+        Draw.rect(outRegion, plan.drawx(), plan.drawy(), plan.rotation * 90);
+        Draw.rect(topRegion, plan.drawx(), plan.drawy());
+    }
+
     public class PayloadRailBuild extends PayloadBlockBuild<Payload>{
         public Seq<RailPayload> items = new Seq<>();
         public int link = -1;
@@ -87,19 +100,24 @@ public class PayloadRail extends PayloadBlock{
         public void draw(){
             Draw.rect(region, x, y);
 
-            boolean fallback = true;
-            for(int i = 0; i < 4; ++i) {
-                if (blends(i) && i != rotation) {
-                    Draw.rect(inRegion, x, y, (float)(i * 90 - 180));
-                    fallback = false;
+            if(incoming == -1){
+                boolean fallback = true;
+                for(int i = 0; i < 4; ++i){
+                    if(blends(i) && i != rotation){
+                        Draw.rect(inRegion, x, y, (float)(i * 90 - 180));
+                        fallback = false;
+                    }
+                }
+
+                if(fallback){
+                    Draw.rect(inRegion, x, y, (float)(rotation * 90));
                 }
             }
 
-            if (fallback) {
-                Draw.rect(inRegion, x, y, (float)(rotation * 90));
+            if(link == -1){
+                Draw.rect(outRegion, x, y, rotdeg());
             }
 
-            Draw.rect(outRegion, x, y, rotdeg());
             Draw.rect(topRegion, x, y);
             Draw.z(35f);
             drawPayload();
@@ -170,13 +188,18 @@ public class PayloadRail extends PayloadBlock{
                 PayloadRailBuild other = (PayloadRailBuild)world.build(link);
                 float rotTarget =
                     other != null ? angleTo(other) :
-                    block.rotate ? rotdeg() :
-                    90f;
+                        block.rotate ? rotdeg() :
+                            90f;
                 payRotation = Angles.moveToward(payRotation, rotTarget, payloadRotateSpeed * delta());
             }
             payVector.approach(Vec2.ZERO, payloadSpeed * delta());
 
             return hasArrived();
+        }
+
+        @Override
+        public boolean acceptPayload(Building source, Payload payload){
+            return super.acceptPayload(source, payload) && (source == this || incoming == -1);
         }
 
         @Override
