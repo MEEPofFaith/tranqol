@@ -45,9 +45,13 @@ public class TranqolBlocks{
     reinforcedPayloadJunction,
 
     // endregion
+    // region power - Serpulo
+
+    smartPowerNode,
+
     // region power - Erekir
 
-    beamInsulator, beamDiode;
+    smartBeamNode, beamInsulator, beamDiode;
 
     // endregion
 
@@ -145,7 +149,26 @@ public class TranqolBlocks{
         }};
 
         // endregion
+        // region power - Serpulo
+
+        smartPowerNode = new SmartPowerNode("smart-power-node"){{ //Copy stats from normal power node
+            requirements(Category.power, with(Items.copper, 2, Items.lead, 5, Items.silicon, 1));
+            maxNodes = 10;
+            laserRange = 6;
+        }};
+
+        // endregion
         // region power - Erekir
+
+        smartBeamNode = new SmartBeamNode("smart-beam-node"){{ //Copy stats from normal beam node
+            requirements(Category.power, with(Items.beryllium, 10, Items.silicon, 2));
+            consumesPower = outputsPower = true;
+            health = 90;
+            range = 10;
+            fogRadius = 1;
+
+            consumePowerBuffered(1000f);
+        }};
 
         beamInsulator = new InsulationWall("beam-insulator"){{
             requirements(Category.power, with(
