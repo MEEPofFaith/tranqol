@@ -144,6 +144,7 @@ public class PayloadRail extends PayloadBlock{
             if(checkLink()){
                 items.each(RailPayload::removed);
                 items.clear();
+                link = -1;
                 moveOutPayload();
                 return;
             }
@@ -199,7 +200,7 @@ public class PayloadRail extends PayloadBlock{
 
         @Override
         public boolean acceptPayload(Building source, Payload payload){
-            return super.acceptPayload(source, payload) && (source == this || incoming == -1);
+            return super.acceptPayload(source, payload) && (incoming == -1 || source == world.build(incoming));
         }
 
         @Override
