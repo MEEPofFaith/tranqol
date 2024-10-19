@@ -1,6 +1,6 @@
 package tranqol.world.blocks.payload;
 
-import arc.graphics.*;
+import arc.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.math.geom.*;
@@ -24,6 +24,9 @@ public class PayloadRail extends PayloadBlock{
     public float bufferDst = 1f;
     public float range = 10f * tilesize;
     public float arrivedRadius = 4f;
+
+    protected TextureRegion railRegion;
+    protected TextureRegion railEndRegion;
 
     public PayloadRail(String name){
         super(name);
@@ -81,7 +84,7 @@ public class PayloadRail extends PayloadBlock{
 
     @Override
     public TextureRegion[] icons(){
-        return new TextureRegion[]{region, inRegion, outRegion, topRegion};
+        return new TextureRegion[]{region, inRegion, outRegion, topRegion, railEndRegion};
     }
 
     @Override
@@ -90,6 +93,14 @@ public class PayloadRail extends PayloadBlock{
         Draw.rect(inRegion, plan.drawx(), plan.drawy(), plan.rotation * 90);
         Draw.rect(outRegion, plan.drawx(), plan.drawy(), plan.rotation * 90);
         Draw.rect(topRegion, plan.drawx(), plan.drawy());
+        Draw.rect(railEndRegion, plan.drawx(), plan.drawy());
+    }
+
+    @Override
+    public void load(){
+        super.load();
+        railRegion = Core.atlas.find(name + "-rail");
+        railEndRegion = Core.atlas.find(name + "-rail-end");
     }
 
     public class PayloadRailBuild extends PayloadBlockBuild<Payload>{
@@ -119,25 +130,47 @@ public class PayloadRail extends PayloadBlock{
                 Draw.rect(outRegion, x, y, rotdeg());
             }
 
+            Draw.z(Layer.blockOver + 0.1f);
             Draw.rect(topRegion, x, y);
-            Draw.z(35f);
+            Draw.z(Layer.power + 0.1f);
+            Draw.rect(railEndRegion, x, y);
             drawPayload();
 
             if(link == -1) return;
+            Building other = world.build(link);
+            if(!(other instanceof PayloadRailBuild)) return;
 
-            Draw.z(Layer.power);
+            Draw.z(Layer.power - 1);
             items.each(RailPayload::draw);
 
-            PayloadRailBuild other = (PayloadRailBuild)world.build(link);
-            if(other == null) return;
-            Lines.stroke(2, Color.red);
-            Lines.line(x, y, other.x, other.y);
+            Draw.z(Layer.power);
+            float texW = railRegion.width / 4f;
+            int count = Mathf.round(dst(other) / texW);
+            float width = dst(other) / (count * texW);
+            float ang = angleTo(other);
+            float flip = ang >= 90f && ang < 270f ? -1f : 1f;
+            float dx = (other.x - x) / count;
+            float dy = (other.y - y) / count;
+            for(int i = 0; i < count; i++){
+                float j = (i + 0.5f);
+                Draw.rect(railRegion, x + dx * j, y + dy * j, texW * width, railRegion.height / 4f * flip, ang);
+            }
+        }
+
+        @Override
+        public void drawPayload(){
+            if(payload != null){
+                updatePayload();
+
+                Draw.z((incoming != -1 && !checkLink()) ? Layer.power - 1 : Layer.blockOver);
+                payload.draw();
+            }
         }
 
         @Override
         public void updateTile(){
+            checkIncoming();
             if(link == -1){
-                checkIncoming();
                 moveOutPayload();
                 return;
             }
@@ -328,13 +361,8 @@ public class PayloadRail extends PayloadBlock{
         }
 
         public void draw(){
-            //temp
             payload.draw();
-            Lines.stroke(1f, Color.white);
-            Lines.line(payload.x(), payload.y(), x, y);
-            Draw.color(Pal.accent);
-            Fill.circle(x, y, 2f);
-            Draw.color();
+            //TODO some draw for the rail pos?
         }
 
         public boolean railArrived(Position target){
