@@ -23,6 +23,7 @@ public class PayloadRail extends PayloadBlock{
     public float followSpeed = 0.1f;
     public float bufferDst = 1f;
     public float range = 10f * tilesize;
+    public float arrivedRadius = 4f;
 
     public PayloadRail(String name){
         super(name);
@@ -103,7 +104,7 @@ public class PayloadRail extends PayloadBlock{
             if(incoming == -1){
                 boolean fallback = true;
                 for(int i = 0; i < 4; ++i){
-                    if(blends(i) && i != rotation){
+                    if(blends(i)){
                         Draw.rect(inRegion, x, y, (float)(i * 90 - 180));
                         fallback = false;
                     }
@@ -144,7 +145,6 @@ public class PayloadRail extends PayloadBlock{
             if(checkLink()){
                 items.each(RailPayload::removed);
                 items.clear();
-                link = -1;
                 moveOutPayload();
                 return;
             }
@@ -205,7 +205,14 @@ public class PayloadRail extends PayloadBlock{
 
         @Override
         public void handlePayload(Building source, Payload payload){
-            super.handlePayload(source, payload);
+            if(incoming != -1){
+                this.payload = payload;
+                payVector.set(payload).sub(this);
+                payRotation = payload.rotation();
+                updatePayload();
+            }else{
+                super.handlePayload(source, payload);
+            }
         }
 
         @Override
@@ -224,14 +231,14 @@ public class PayloadRail extends PayloadBlock{
         /** @return true if link invalid */
         public boolean checkLink(){
             if(link == -1) return true;
-            PayloadRailBuild other = (PayloadRailBuild)world.build(link);
-            if(other == null){
+            Building other = world.build(link);
+            if(!(other instanceof PayloadRailBuild build)){
                 return true;
             }
-            if(other.incoming == -1){
-                other.incoming = tile.pos();
+            if(build.incoming == -1){
+                build.incoming = tile.pos();
             }
-            return other.incoming != tile.pos();
+            return build.incoming != tile.pos();
         }
 
         public void checkIncoming(){
@@ -331,13 +338,11 @@ public class PayloadRail extends PayloadBlock{
         }
 
         public boolean railArrived(Position target){
-            return Mathf.zero(target.getX() - x, zeroPrecision)
-                && Mathf.zero(target.getY() - y, zeroPrecision);
+            return Mathf.within(target.getX(), target.getY(), x, y, zeroPrecision);
         }
 
         public boolean payArrived(Position target){
-            return Mathf.zero(target.getX() - payload.x(), zeroPrecision)
-                && Mathf.zero(target.getY() - payload.y(), zeroPrecision);
+            return Mathf.within(target.getX(), target.getY(), payload.x(), payload.y(), arrivedRadius);
         }
 
         public float radius(){
