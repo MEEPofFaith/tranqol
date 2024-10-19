@@ -12,6 +12,7 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.world.*;
 import mindustry.world.blocks.payloads.*;
+import tranqol.graphics.*;
 
 import static mindustry.Vars.*;
 
@@ -25,8 +26,8 @@ public class PayloadRail extends PayloadBlock{
     public float range = 10f * tilesize;
     public float arrivedRadius = 4f;
 
-    protected TextureRegion railRegion;
     protected TextureRegion railEndRegion;
+    protected TextureRegion[] railRegions;
 
     public PayloadRail(String name){
         super(name);
@@ -99,8 +100,12 @@ public class PayloadRail extends PayloadBlock{
     @Override
     public void load(){
         super.load();
-        railRegion = Core.atlas.find(name + "-rail");
         railEndRegion = Core.atlas.find(name + "-rail-end");
+
+        railRegions = new TextureRegion[3];
+        for(int i = 0; i < 3; i++){
+            railRegions[i] = Core.atlas.find(name + "-rail-" + i);
+        }
     }
 
     public class PayloadRailBuild extends PayloadBlockBuild<Payload>{
@@ -144,16 +149,15 @@ public class PayloadRail extends PayloadBlock{
             items.each(RailPayload::draw);
 
             Draw.z(Layer.power);
-            float texW = railRegion.width / 4f;
+            float texW = railRegions[0].width / 4f;
             int count = Mathf.round(dst(other) / texW);
             float width = dst(other) / (count * texW);
             float ang = angleTo(other);
-            float flip = ang >= 90f && ang < 270f ? -1f : 1f;
             float dx = (other.x - x) / count;
             float dy = (other.y - y) / count;
             for(int i = 0; i < count; i++){
                 float j = (i + 0.5f);
-                Draw.rect(railRegion, x + dx * j, y + dy * j, texW * width, railRegion.height / 4f * flip, ang);
+                TQDrawf.spinSprite(railRegions[0], railRegions[1], railRegions[2], x + dx * j, y + dy * j, texW * width, railRegions[0].height / 4f, ang);
             }
         }
 
