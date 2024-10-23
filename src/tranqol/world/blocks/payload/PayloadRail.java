@@ -26,7 +26,6 @@ public class PayloadRail extends PayloadBlock{
     public float range = 10f * tilesize;
     public float arrivedRadius = 4f;
     public float clawWarmupRate = 0.08f;
-    public float clawRotSpeed = 10f;
 
     protected TextureRegion railEndRegion;
     protected TextureRegion[] railRegions, clawRegions;
@@ -117,9 +116,9 @@ public class PayloadRail extends PayloadBlock{
         public Seq<RailPayload> items = new Seq<>();
         public int link = -1;
         public int incoming = -1;
-        public float clawAlpha;
+        public float clawInAlpha;
+        public float clawOutAlpha;
         public Vec2 clawVec = new Vec2();
-        public float clawRot;
 
         @Override
         public void draw(){
@@ -139,7 +138,7 @@ public class PayloadRail extends PayloadBlock{
                 }
             }
 
-            if(link == -1){
+            if(checkLink()){
                 Draw.rect(outRegion, x, y, rotdeg());
             }
 
@@ -147,9 +146,15 @@ public class PayloadRail extends PayloadBlock{
             Draw.rect(topRegion, x, y);
             Draw.z(Layer.power + 0.1f);
             Draw.rect(railEndRegion, x, y);
+
             Draw.z(Layer.power + 0.2f);
-            TQDrawf.spinSprite(clawRegions, x + clawVec.x, y + clawVec.y, clawRot, clawAlpha);
-            Draw.color();
+            if(incoming != -1){
+                Building other = world.build(incoming);
+                if(other instanceof PayloadRailBuild){
+                    TQDrawf.spinSprite(clawRegions, x + clawVec.x, y + clawVec.y, other.angleTo(this), clawInAlpha);
+                }
+            }
+
             drawPayload();
 
             if(link == -1) return;
@@ -172,6 +177,9 @@ public class PayloadRail extends PayloadBlock{
                 float j = (i + 0.5f);
                 TQDrawf.spinSprite(railRegions, x + dx * j, y + dy * j, texW * width, railRegions[0].height / 4f, ang);
             }
+
+            Draw.z(Layer.power + 0.2f);
+            TQDrawf.spinSprite(clawRegions, x, y, ang, clawOutAlpha);
         }
 
         @Override
@@ -190,13 +198,7 @@ public class PayloadRail extends PayloadBlock{
                 checkIncoming();
             }
 
-            if(incoming != -1){
-                clawAlpha = Mathf.approachDelta(clawAlpha, 0, clawWarmupRate);
-            }
-            if(link != -1){
-                clawAlpha = Mathf.approachDelta(clawAlpha, 1, clawWarmupRate);
-            }
-            clawVec.approach(Vec2.ZERO, railSpeed * delta());
+            clawInAlpha = Mathf.approachDelta(clawInAlpha, 0, clawWarmupRate);
 
             if(link == -1){
                 moveOutPayload();
@@ -210,11 +212,12 @@ public class PayloadRail extends PayloadBlock{
                 return;
             }
 
+            clawOutAlpha = Mathf.approachDelta(clawOutAlpha, 1, clawWarmupRate);
             if(moveInPayload(true)){
                 if(items.isEmpty() || dst(items.peek()) > items.peek().radius() + payRadius(payload) + bufferDst){
                     items.add(new RailPayload(payload, x, y));
                     payload = null;
-                    clawAlpha = 0f;
+                    clawOutAlpha = 0f;
                 }
             }
 
@@ -223,8 +226,6 @@ public class PayloadRail extends PayloadBlock{
 
         public void updateRail(){
             PayloadRailBuild other = (PayloadRailBuild)world.build(link);
-
-            clawRot = Angles.moveToward(clawRot, angleTo(other), clawRotSpeed);
 
             for(int i = 0; i < items.size; i++){
                 Position target = i == 0 ? other : items.get(i - 1);
@@ -280,8 +281,7 @@ public class PayloadRail extends PayloadBlock{
                 updatePayload();
 
                 clawVec.set(payload).sub(this);
-                clawRot = source.angleTo(this);
-                clawAlpha = 1f;
+                clawInAlpha = 1f;
             }else{
                 super.handlePayload(source, payload);
             }
