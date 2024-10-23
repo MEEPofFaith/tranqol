@@ -26,8 +26,9 @@ public class PayloadRail extends PayloadBlock{
     public float range = 10f * tilesize;
     public float arrivedRadius = 4f;
     public float clawWarmupRate = 0.08f;
+    public float warmupSpeed = 0.05f;
 
-    protected TextureRegion railEndRegion;
+    protected TextureRegion railEndRegion, arrow;
     protected TextureRegion[] railRegions, clawRegions;
 
     public PayloadRail(String name){
@@ -110,14 +111,16 @@ public class PayloadRail extends PayloadBlock{
             railRegions[i] = Core.atlas.find(name + "-rail-" + i);
             clawRegions[i] = Core.atlas.find(name + "-claw-" + i);
         }
+
+        arrow = Core.atlas.find("bridge-arrow");
     }
 
     public class PayloadRailBuild extends PayloadBlockBuild<Payload>{
         public Seq<RailPayload> items = new Seq<>();
         public int link = -1;
         public int incoming = -1;
-        public float clawInAlpha;
-        public float clawOutAlpha;
+        public float clawInAlpha, clawOutAlpha;
+        public float warmup;
         public Vec2 clawVec = new Vec2();
 
         @Override
@@ -177,6 +180,16 @@ public class PayloadRail extends PayloadBlock{
                 float j = (i + 0.5f);
                 TQDrawf.spinSprite(railRegions, x + dx * j, y + dy * j, texW * width, railRegions[0].height / 4f, ang);
             }
+
+            Draw.z(Layer.effect);
+            Draw.color(Pal.accent);
+            Draw.scl(warmup * 1.1f);
+            for(int i = 0; i < 4; i++){
+                Tmp.v1.set(x, y).lerp(other.x, other.y, 0.5f + (i - 1.5f) * 0.2f);
+                Draw.rect(arrow, Tmp.v1.x, Tmp.v1.y, ang);
+            }
+            Draw.color();
+            Draw.scl();
 
             Draw.z(Layer.power + 0.2f);
             TQDrawf.spinSprite(clawRegions, x, y, ang, clawOutAlpha);
@@ -239,6 +252,8 @@ public class PayloadRail extends PayloadBlock{
                     items.remove(0);
                 }
             }
+
+            warmup = Mathf.approachDelta(warmup, items.any() ? 1 : 0, warmupSpeed);
         }
 
         @Override
