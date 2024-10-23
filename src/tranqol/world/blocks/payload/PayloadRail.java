@@ -25,9 +25,11 @@ public class PayloadRail extends PayloadBlock{
     public float bufferDst = 1f;
     public float range = 10f * tilesize;
     public float arrivedRadius = 4f;
+    public float clawWarmupRate = 0.08f;
+    public float clawRotSpeed = 10f;
 
     protected TextureRegion railEndRegion;
-    protected TextureRegion[] railRegions;
+    protected TextureRegion[] railRegions, clawRegions;
 
     public PayloadRail(String name){
         super(name);
@@ -38,6 +40,7 @@ public class PayloadRail extends PayloadBlock{
         update = true;
         rotate = true;
         solid = true;
+        canOverdrive = false;
 
         //Point2 is relative
         config(Point2.class, (PayloadRailBuild build, Point2 point) -> {
@@ -103,8 +106,10 @@ public class PayloadRail extends PayloadBlock{
         railEndRegion = Core.atlas.find(name + "-rail-end");
 
         railRegions = new TextureRegion[3];
+        clawRegions = new TextureRegion[3];
         for(int i = 0; i < 3; i++){
             railRegions[i] = Core.atlas.find(name + "-rail-" + i);
+            clawRegions[i] = Core.atlas.find(name + "-claw-" + i);
         }
     }
 
@@ -112,6 +117,9 @@ public class PayloadRail extends PayloadBlock{
         public Seq<RailPayload> items = new Seq<>();
         public int link = -1;
         public int incoming = -1;
+        public float clawAlpha;
+        public Vec2 clawVec = new Vec2();
+        public float clawRot;
 
         @Override
         public void draw(){
@@ -139,14 +147,19 @@ public class PayloadRail extends PayloadBlock{
             Draw.rect(topRegion, x, y);
             Draw.z(Layer.power + 0.1f);
             Draw.rect(railEndRegion, x, y);
+            Draw.z(Layer.power + 0.2f);
+            TQDrawf.spinSprite(clawRegions, x + clawVec.x, y + clawVec.y, clawRot, clawAlpha);
+            Draw.color();
             drawPayload();
 
             if(link == -1) return;
             Building other = world.build(link);
             if(!(other instanceof PayloadRailBuild)) return;
 
-            Draw.z(Layer.power - 1);
-            items.each(RailPayload::draw);
+            items.each(p -> {
+                Draw.z(Layer.power - 1);
+                p.draw();
+            });
 
             Draw.z(Layer.power);
             float texW = railRegions[0].width / 4f;
@@ -157,7 +170,7 @@ public class PayloadRail extends PayloadBlock{
             float dy = (other.y - y) / count;
             for(int i = 0; i < count; i++){
                 float j = (i + 0.5f);
-                TQDrawf.spinSprite(railRegions[0], railRegions[1], railRegions[2], x + dx * j, y + dy * j, texW * width, railRegions[0].height / 4f, ang);
+                TQDrawf.spinSprite(railRegions, x + dx * j, y + dy * j, texW * width, railRegions[0].height / 4f, ang);
             }
         }
 
@@ -173,7 +186,18 @@ public class PayloadRail extends PayloadBlock{
 
         @Override
         public void updateTile(){
-            checkIncoming();
+            if(incoming != -1){
+                checkIncoming();
+            }
+
+            if(incoming != -1){
+                clawAlpha = Mathf.approachDelta(clawAlpha, 0, clawWarmupRate);
+            }
+            if(link != -1){
+                clawAlpha = Mathf.approachDelta(clawAlpha, 1, clawWarmupRate);
+            }
+            clawVec.approach(Vec2.ZERO, railSpeed * delta());
+
             if(link == -1){
                 moveOutPayload();
                 return;
@@ -186,14 +210,21 @@ public class PayloadRail extends PayloadBlock{
                 return;
             }
 
-            PayloadRailBuild other = (PayloadRailBuild)world.build(link);
-
             if(moveInPayload(true)){
                 if(items.isEmpty() || dst(items.peek()) > items.peek().radius() + payRadius(payload) + bufferDst){
                     items.add(new RailPayload(payload, x, y));
                     payload = null;
+                    clawAlpha = 0f;
                 }
             }
+
+            updateRail();
+        }
+
+        public void updateRail(){
+            PayloadRailBuild other = (PayloadRailBuild)world.build(link);
+
+            clawRot = Angles.moveToward(clawRot, angleTo(other), clawRotSpeed);
 
             for(int i = 0; i < items.size; i++){
                 Position target = i == 0 ? other : items.get(i - 1);
@@ -203,7 +234,7 @@ public class PayloadRail extends PayloadBlock{
             if(items.any()){
                 RailPayload first = items.first();
                 if(first.payArrived(other) && other.acceptPayload(this, first.payload)){
-                    other.handlePayload(other, first.payload);
+                    other.handlePayload(this, first.payload);
                     items.remove(0);
                 }
             }
@@ -247,6 +278,10 @@ public class PayloadRail extends PayloadBlock{
                 payVector.set(payload).sub(this);
                 payRotation = payload.rotation();
                 updatePayload();
+
+                clawVec.set(payload).sub(this);
+                clawRot = source.angleTo(this);
+                clawAlpha = 1f;
             }else{
                 super.handlePayload(source, payload);
             }
@@ -273,14 +308,14 @@ public class PayloadRail extends PayloadBlock{
                 return true;
             }
             if(build.incoming == -1){
-                build.incoming = tile.pos();
+                build.incoming = pos();
             }
-            return build.incoming != tile.pos();
+            return build.incoming != pos();
         }
 
         public void checkIncoming(){
-            Tile other = world.tile(incoming);
-            if(!linkValid(tile, other, false) || ((PayloadRailBuild)other.build).link != pos()){
+            Building other = world.build(incoming);
+            if(!(other instanceof PayloadRailBuild build) || build.link != pos()){
                 incoming = -1;
             }
         }
@@ -323,6 +358,7 @@ public class PayloadRail extends PayloadBlock{
     public class RailPayload implements Position{
         public Payload payload;
         public float x, y;
+        public float dir;
 
         public RailPayload(Payload payload, float x, float y){
             this.payload = payload;
@@ -357,16 +393,19 @@ public class PayloadRail extends PayloadBlock{
             x = Tmp.v2.x;
             y = Tmp.v2.y;
 
+            dir = payload.angleTo(target);
+
             payload.set(
                 Mathf.lerpDelta(payload.x(), x, followSpeed),
                 Mathf.lerpDelta(payload.y(), y, followSpeed),
-                Angles.moveToward(payload.rotation(), payload.angleTo(target), payloadRotateSpeed * Time.delta)
+                Angles.moveToward(payload.rotation(), dir, payloadRotateSpeed * Time.delta)
             );
         }
 
         public void draw(){
             payload.draw();
-            //TODO some draw for the rail pos?
+            Draw.z(Layer.power + 0.2f);
+            TQDrawf.spinSprite(clawRegions, payload.x(), payload.y(), dir);
         }
 
         public boolean railArrived(Position target){
@@ -375,6 +414,10 @@ public class PayloadRail extends PayloadBlock{
 
         public boolean payArrived(Position target){
             return Mathf.within(target.getX(), target.getY(), payload.x(), payload.y(), arrivedRadius);
+        }
+
+        public boolean clawArrived(Position target){
+            return Mathf.within(target.getX(), target.getY(), payload.x(), payload.y(), 0.5f);
         }
 
         public float radius(){
