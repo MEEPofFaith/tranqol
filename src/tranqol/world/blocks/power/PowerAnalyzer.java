@@ -10,6 +10,8 @@ import mindustry.graphics.*;
 import mindustry.world.blocks.power.*;
 import mindustry.world.meta.*;
 
+import static mindustry.Vars.*;
+
 public class PowerAnalyzer extends PowerBlock{
     public float displayLength = 8f;
     public float displaySpacing = 4f;
@@ -20,7 +22,9 @@ public class PowerAnalyzer extends PowerBlock{
 
     public PowerAnalyzer(String name){
         super(name);
-        //update = false; //Does not need to update, probably
+        update = false; //Does not need to update
+        destructible = true;
+        enableDrawStatus = true;
     }
 
     @Override
@@ -57,6 +61,10 @@ public class PowerAnalyzer extends PowerBlock{
             Draw.color();
 
             Draw.rect(topRegion, x, y);
+
+            if(renderer.drawStatus){
+                drawStatus();
+            }
         }
 
         public void drawUsage(float produced, float consumed){
@@ -94,8 +102,27 @@ public class PowerAnalyzer extends PowerBlock{
         }
 
         @Override
+        public void drawStatus(){ //Literally just removing the requirement of having a consumer
+            float multiplier = this.block.size > 1 ? 1f : 0.64f;
+            float brcx = this.x + (float)(this.block.size * 8) / 2f - 8f * multiplier / 2f;
+            float brcy = this.y - (float)(this.block.size * 8) / 2f + 8f * multiplier / 2f;
+            Draw.z(71f);
+            Draw.color(Pal.gray);
+            Fill.square(brcx, brcy, 2.5f * multiplier, 45f);
+            Draw.color(this.status().color);
+            Fill.square(brcx, brcy, 1.5f * multiplier, 45f);
+            Draw.color();
+        }
+
+        @Override
         public BlockStatus status(){
-            return super.status();
+            float net = (power.graph.getLastScaledPowerIn() - power.graph.getLastScaledPowerOut()) * 60f;
+
+            if(Mathf.zero(net, 5f)) return BlockStatus.noOutput;
+            if(net < 0) return BlockStatus.noInput;
+            if(net > 0) return BlockStatus.active;
+
+            return BlockStatus.noInput;
         }
     }
 }
