@@ -47,7 +47,7 @@ public class TranqolBlocks{
     // endregion
     // region power - Serpulo
 
-    smartPowerNode,
+    smartPowerNode, powerAnalyzer,
 
     // region power - Erekir
 
@@ -155,6 +155,14 @@ public class TranqolBlocks{
             requirements(Category.power, with(Items.copper, 2, Items.lead, 5, Items.silicon, 1));
             maxNodes = 10;
             laserRange = 6;
+        }};
+
+        powerAnalyzer = new PowerAnalyzer("power-analyzer"){{
+            requirements(Category.power, with(Items.lead, 60, Items.silicon, 20, Items.metaglass, 10));
+            size = 2;
+            displayThickness = 9f / 4f;
+            displaySpacing = 18f / 4f;
+            displayLength = 24f / 4f;
         }};
 
         // endregion
