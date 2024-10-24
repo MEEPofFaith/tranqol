@@ -1,6 +1,7 @@
 package tranqol.world.blocks.power;
 
 import arc.*;
+import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
 import arc.util.*;
@@ -18,7 +19,13 @@ public class PowerAnalyzer extends PowerBlock{
     public float displayThickness = 2f;
     public boolean horizontal = false;
 
-    public TextureRegion topRegion;
+    public float changeTolerance = 5f;
+
+    public Color produceColor = Pal.heal;
+    public Color consumeColor = Pal.remove;
+    public Color storedColor = Pal.power;
+
+    public TextureRegion topRegion, arrowRegion;
 
     public PowerAnalyzer(String name){
         super(name);
@@ -32,6 +39,7 @@ public class PowerAnalyzer extends PowerBlock{
         super.load();
 
         topRegion = Core.atlas.find(name + "-top");
+        arrowRegion = Core.atlas.find(name + "-arrow", "tranqol-power-analyzer-arrow");
     }
 
     @Override
@@ -70,33 +78,43 @@ public class PowerAnalyzer extends PowerBlock{
         public void drawUsage(float produced, float consumed){
             float total = produced + consumed;
             if(horizontal){
-                Draw.color(Pal.heal);
+                Draw.color(produceColor);
                 Lines.lineAngle(x - displayLength / 2f, y - displaySpacing / 2f, 0, displayLength * (produced / total), false);
-                Draw.color(Pal.remove);
+                Draw.color(consumeColor);
                 Lines.lineAngle(x + displayLength / 2f, y - displaySpacing / 2f, 180f, displayLength * (consumed / total), false);
             }else{
-                Draw.color(Pal.heal);
+                Draw.color(produceColor);
                 Lines.lineAngle(x - displaySpacing / 2f, y - displayLength / 2f, 90f, displayLength * (produced / total), false);
-                Draw.color(Pal.remove);
+                Draw.color(consumeColor);
                 Lines.lineAngle(x - displaySpacing / 2f, y + displayLength / 2f, -90f, displayLength * (consumed / total), false);
             }
         }
 
         public void drawStorage(float stored, float capacity, float net){
-            Draw.color(Pal.power);
             float powLen = displayLength * (stored / capacity);
             float alpha = Mathf.absin(25f / Mathf.PI2, 1f);
+            boolean changing = !Mathf.zero(net, changeTolerance);
+
+            Draw.color(storedColor);
             if(horizontal){
                 Lines.lineAngle(x - displayLength / 2f, y + displaySpacing / 2f, 0f, powLen, false);
-                Draw.color(net < 0 ? Pal.remove : Pal.heal, alpha);
+
                 float netLen = Math.min(displayLength - powLen, displayLength * (net / capacity));
                 netLen = Math.max(-powLen, netLen);
+
+                Draw.color(net < 0 ? consumeColor : produceColor);
+                if(changing) Draw.rect(arrowRegion, x + displaySpacing / 2f, y - displayLength / 2f + powLen, Mathf.sign(net) * 90f - 90f);
+                Draw.alpha(alpha);
                 Lines.lineAngle(x - displayLength / 2f + powLen, y + displaySpacing / 2f, 0f, netLen, false);
             }else{
                 Lines.lineAngle(x + displaySpacing / 2f, y - displayLength / 2f, 90f, powLen, false);
-                Draw.color(net < 0 ? Pal.remove : Pal.heal, alpha);
+
                 float netLen = Math.min(displayLength - powLen, displayLength * (net / capacity));
                 netLen = Math.max(-powLen, netLen);
+
+                Draw.color(net < 0 ? consumeColor : produceColor);
+                if(changing) Draw.rect(arrowRegion, x + displaySpacing / 2f, y - displayLength / 2f + powLen, Mathf.sign(net) * 90f);
+                Draw.alpha(alpha);
                 Lines.lineAngle(x + displaySpacing / 2f, y - displayLength / 2f + powLen, 90f, netLen, false);
             }
         }
@@ -118,7 +136,7 @@ public class PowerAnalyzer extends PowerBlock{
         public BlockStatus status(){
             float net = (power.graph.getLastScaledPowerIn() - power.graph.getLastScaledPowerOut()) * 60f;
 
-            if(Mathf.zero(net, 5f)) return BlockStatus.noOutput;
+            if(Mathf.zero(net, changeTolerance)) return BlockStatus.noOutput;
             if(net < 0) return BlockStatus.noInput;
             if(net > 0) return BlockStatus.active;
 
