@@ -29,6 +29,7 @@ public class PayloadJunction extends Block{
         update = true;
         outputsPayload = true;
         noUpdateDisabled = true;
+        canOverdrive = false;
         priority = TargetPriority.transport;
         envEnabled |= Env.space | Env.underwater;
         sync = true;

@@ -42,7 +42,7 @@ public class TQBlocks{
     // endregion
     // region payload - Erekir
 
-    reinforcedPayloadJunction,
+    reinforcedPayloadJunction, reinforcedPayloadRail,
 
     // endregion
     // region power - Serpulo
@@ -51,7 +51,7 @@ public class TQBlocks{
 
     // region power - Erekir
 
-    smartBeamNode, beamInsulator, beamDiode;
+    smartBeamNode, beamInsulator, beamDiode, reinforcedPowerAnalyzer;
 
     // endregion
 
@@ -126,13 +126,11 @@ public class TQBlocks{
 
         payloadJunction = new PayloadJunction("payload-junction"){{
             requirements(Category.units, with(Items.graphite, 15, Items.copper, 20));
-            canOverdrive = false;
             hideDetails = false;
         }};
 
         payloadRail = new PayloadRail("payload-rail"){{
-            requirements(Category.units, with(Items.graphite, 15, Items.copper, 20));
-            canOverdrive = false;
+            requirements(Category.units, with(Items.graphite, 45, Items.titanium, 35, Items.silicon, 20));
         }};
 
         // endregion
@@ -141,11 +139,14 @@ public class TQBlocks{
         reinforcedPayloadJunction = new PayloadJunction("reinforced-payload-junction"){{
             requirements(Category.units, with(Items.tungsten, 15, Items.beryllium, 10));
             moveTime = 35f;
-            canOverdrive = false;
             health = 800;
             researchCostMultiplier = 4f;
             underBullets = true;
             hideDetails = false;
+        }};
+
+        reinforcedPayloadRail = new PayloadRail("reinforced-payload-rail"){{
+            requirements(Category.units, with(Items.tungsten, 55, Items.silicon, 25, Items.oxide, 10));
         }};
 
         // endregion
@@ -195,6 +196,15 @@ public class TQBlocks{
             health = 90;
             range = 10;
             fogRadius = 1;
+        }};
+
+        reinforcedPowerAnalyzer = new PowerAnalyzer("reinforced-power-analyzer"){{
+            requirements(Category.power, with(Items.beryllium, 25, Items.silicon, 15));
+            size = 2;
+            displayThickness = 9f / 4f;
+            displaySpacing = 18f / 4f;
+            displayLength = 24f / 4f;
+            horizontal = true; //Why not
         }};
 
         //endregion

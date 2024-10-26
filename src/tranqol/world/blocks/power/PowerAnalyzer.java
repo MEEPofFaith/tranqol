@@ -116,7 +116,7 @@ public class PowerAnalyzer extends PowerBlock{
                 netLen = Math.max(-powLen, netLen);
 
                 Draw.color(net < 0 ? consumeColor : produceColor);
-                if(changing) Draw.rect(arrowRegion, x + displaySpacing / 2f, y - displayLength / 2f + powLen, Mathf.sign(net) * 90f - 90f);
+                if(changing) Draw.rect(arrowRegion, x - displayLength / 2f + powLen, y + displaySpacing / 2f, Mathf.sign(net) * 90f - 90f);
                 Draw.alpha(alpha);
                 Lines.lineAngle(x - displayLength / 2f + powLen, y + displaySpacing / 2f, 0f, netLen, false);
             }else{
