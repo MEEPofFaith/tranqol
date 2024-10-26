@@ -91,9 +91,9 @@ public class PowerAnalyzer extends PowerBlock{
             float total = produced + consumed;
             if(horizontal){
                 Draw.color(produceColor);
-                Lines.lineAngle(x - displayLength / 2f, y - displaySpacing / 2f, 0, displayLength * (produced / total), false);
+                Lines.lineAngle(x - displayLength / 2f, y + displaySpacing / 2f, 0, displayLength * (produced / total), false);
                 Draw.color(consumeColor);
-                Lines.lineAngle(x + displayLength / 2f, y - displaySpacing / 2f, 180f, displayLength * (consumed / total), false);
+                Lines.lineAngle(x + displayLength / 2f, y + displaySpacing / 2f, 180f, displayLength * (consumed / total), false);
             }else{
                 Draw.color(produceColor);
                 Lines.lineAngle(x - displaySpacing / 2f, y - displayLength / 2f, 90f, displayLength * (produced / total), false);
@@ -111,15 +111,15 @@ public class PowerAnalyzer extends PowerBlock{
 
             Draw.color(storedColor);
             if(horizontal){
-                Lines.lineAngle(x - displayLength / 2f, y + displaySpacing / 2f, 0f, powLen, false);
+                Lines.lineAngle(x - displayLength / 2f, y - displaySpacing / 2f, 0f, powLen, false);
 
                 float netLen = Math.min(displayLength - powLen, displayLength * (net / capacity));
                 netLen = Math.max(-powLen, netLen);
 
                 Draw.color(net < 0 ? consumeColor : produceColor);
-                if(changing) Draw.rect(arrowRegion, x - displayLength / 2f + powLen, y + displaySpacing / 2f, Mathf.sign(net) * 90f - 90f);
+                if(changing) Draw.rect(arrowRegion, x - displayLength / 2f + powLen, y - displaySpacing / 2f, Mathf.sign(net) * 90f - 90f);
                 Draw.alpha(alpha);
-                Lines.lineAngle(x - displayLength / 2f + powLen, y + displaySpacing / 2f, 0f, netLen, false);
+                Lines.lineAngle(x - displayLength / 2f + powLen, y - displaySpacing / 2f, 0f, netLen, false);
             }else{
                 Lines.lineAngle(x + displaySpacing / 2f, y - displayLength / 2f, 90f, powLen, false);
 
