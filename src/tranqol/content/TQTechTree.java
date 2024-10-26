@@ -27,8 +27,24 @@ public class TQTechTree{
             });
         });
 
+        vanillaNode(payloadRouter, () -> {
+            node(payloadRail);
+        });
+
         vanillaNode(liquidContainer, () -> {
             node(liquidUnloader);
+        });
+
+        vanillaNode(titaniumConveyor, () -> {
+            node(itemLiquidJunction, Seq.with(new Research(junction), new Research(liquidJunction)));
+        });
+
+        vanillaNode(powerNode, () -> {
+            node(smartPowerNode);
+        });
+
+        vanillaNode(battery, () -> {
+            node(powerAnalyzer, Seq.with(new Research(logicDisplay)));
         });
 
         vanillaNode("erekir", duct, () -> {
@@ -38,8 +54,9 @@ public class TQTechTree{
         });
 
         vanillaNode("erekir", reinforcedLiquidRouter, () -> {
-            node(reinforcedLiquidOverflowValve);
-            node(reinforcedLiquidUnderflowValve);
+            node(reinforcedLiquidOverflowValve, () -> {
+                node(reinforcedLiquidUnderflowValve);
+            });
         });
 
         vanillaNode("erekir", reinforcedPayloadConveyor, () -> {
@@ -48,12 +65,20 @@ public class TQTechTree{
             });
         });
 
+        vanillaNode("erekir", reinforcedPayloadRouter, () -> {
+            node(reinforcedPayloadRail);
+        });
+
         vanillaNode("erekir", reinforcedLiquidContainer, () -> {
             node(reinforcedLiquidUnloader);
         });
 
-        vanillaNode("erekir", beamTower, () -> {
-            node(beamDiode);
+        vanillaNode("erekir", beamNode, () -> {
+            node(smartBeamNode);
+            node(beamInsulator, () -> {
+                node(beamDiode);
+            });
+            node(reinforcedPowerAnalyzer, Seq.with(new Research(canvas)));
         });
     }
 
