@@ -12,7 +12,7 @@ import tranqol.world.blocks.power.*;
 
 import static mindustry.type.ItemStack.*;
 
-public class TranqolBlocks{
+public class TQBlocks{
     public static Block
 
     // region distribution - Erekir

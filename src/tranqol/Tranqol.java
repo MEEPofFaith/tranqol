@@ -29,7 +29,7 @@ public class Tranqol extends Mod{
 
     @Override
     public void loadContent(){
-        TranqolBlocks.load();
-        TranqolTechTree.load();
+        TQBlocks.load();
+        TQTechTree.load();
     }
 }
