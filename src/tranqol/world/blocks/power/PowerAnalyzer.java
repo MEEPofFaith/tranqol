@@ -1,6 +1,8 @@
 package tranqol.world.blocks.power;
 
 import arc.*;
+import arc.Graphics.*;
+import arc.Graphics.Cursor.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.math.*;
@@ -10,6 +12,7 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.world.blocks.power.*;
 import mindustry.world.meta.*;
+import tranqol.ui.*;
 
 import static mindustry.Vars.*;
 
@@ -32,6 +35,7 @@ public class PowerAnalyzer extends PowerBlock{
         update = false; //Does not need to update
         destructible = true;
         enableDrawStatus = true;
+        consumesTap = true;
     }
 
     @Override
@@ -141,6 +145,16 @@ public class PowerAnalyzer extends PowerBlock{
             if(net > 0) return BlockStatus.active;
 
             return BlockStatus.noInput;
+        }
+
+        @Override
+        public Cursor getCursor(){
+            return interactable(player.team()) ? SystemCursor.hand : SystemCursor.arrow;
+        }
+
+        @Override
+        public void tapped(){
+            TQDialogs.powerInfoDialog.show(power.graph);
         }
     }
 }

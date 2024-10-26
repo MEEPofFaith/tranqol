@@ -5,6 +5,7 @@ import mindustry.game.EventType.*;
 import mindustry.mod.*;
 import tranqol.content.*;
 import tranqol.graphics.*;
+import tranqol.ui.*;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
@@ -17,6 +18,14 @@ public class Tranqol extends Mod{
                 TQShaders.init();
             }
         }));
+    }
+
+    @Override
+    public void init(){
+        if(!headless){
+            TQStyles.init();
+            TQDialogs.init();
+        }
     }
 
     @Override
