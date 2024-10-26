@@ -57,6 +57,13 @@ public class PowerAnalyzer extends PowerBlock{
         Draw.rect(topRegion, plan.drawx(), plan.drawy());
     }
 
+    @Override
+    public void setBars(){
+        super.setBars();
+        addBar("power", PowerNode.makePowerBalance());
+        addBar("batteries", PowerNode.makeBatteryBalance());
+    }
+
     public class PowerAnalyzerBlock extends Building{
         @Override
         public void draw(){
