@@ -148,6 +148,11 @@ public class PowerAnalyzer extends PowerBlock{
         }
 
         @Override
+        public void drawSelect(){
+            Drawf.select(x, y, size * tilesize / 2f + 2f, Pal.power);
+        }
+
+        @Override
         public BlockStatus status(){
             float net = (power.graph.getLastScaledPowerIn() - power.graph.getLastScaledPowerOut()) * 60f;
 
