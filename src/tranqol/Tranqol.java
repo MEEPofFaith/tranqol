@@ -23,7 +23,6 @@ public class Tranqol extends Mod{
     @Override
     public void init(){
         if(!headless){
-            TQStyles.init();
             TQDialogs.init();
         }
     }
