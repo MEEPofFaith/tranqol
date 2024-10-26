@@ -65,8 +65,9 @@ public class PowerInfoGroup extends Table{
                 yield Core.bundle.format("tq-power-info.persec", "[#e55454]-" + TQUI.formatAmount(consumed * 60));
             }
             case battery -> {
-                float stored = building.power.status * building.block.consPower.capacity;
-                yield "[#fbad67]" + TQUI.formatAmount(stored);
+                var consumePower = building.block.consPower;
+                float stored = building.power.status * consumePower.capacity;
+                yield "[#fbad67]" + TQUI.formatAmount(stored) + "[gray]/[]" + TQUI.formatAmount(consumePower.capacity);
             }
         };
     }

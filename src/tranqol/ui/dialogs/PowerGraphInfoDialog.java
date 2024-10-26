@@ -94,7 +94,7 @@ public class PowerGraphInfoDialog extends BaseDialog{
         return switch(type){
             case producer -> Core.bundle.get("tq-power-info.producer") + " - " + Core.bundle.format("tq-power-info.persec", "[#98ffa9]+" + TQUI.formatAmount(graph.getLastScaledPowerIn() * 60));
             case consumer -> Core.bundle.get("tq-power-info.consumer") + " - " + Core.bundle.format("tq-power-info.persec", "[#e55454]-" + TQUI.formatAmount(graph.getLastScaledPowerOut() * 60));
-            case battery -> Core.bundle.get("tq-power-info.battery") + " - [#fbad67]" + TQUI.formatAmount(graph.getLastPowerStored());
+            case battery -> Core.bundle.get("tq-power-info.battery") + " - [#fbad67]" + TQUI.formatAmount(graph.getLastPowerStored()) + "[gray]/[]" + TQUI.formatAmount(graph.getLastCapacity());
         };
     }
 
