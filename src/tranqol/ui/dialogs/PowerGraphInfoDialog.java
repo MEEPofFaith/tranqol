@@ -1,5 +1,6 @@
 package tranqol.ui.dialogs;
 
+import arc.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
@@ -7,6 +8,7 @@ import mindustry.gen.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 import mindustry.world.blocks.power.*;
+import tranqol.ui.*;
 import tranqol.ui.elements.*;
 import tranqol.ui.elements.PowerInfoGroup.*;
 
@@ -37,15 +39,24 @@ public class PowerGraphInfoDialog extends BaseDialog{
             modes.button("@tq-power-info.producer", Styles.togglet, () -> {
                 currType = PowerInfoType.producer;
                 refresh();
-            }).growX().update(b -> b.setChecked(currType == PowerInfoType.producer));
+            }).growX().update(b -> {
+                b.setText(selectionTitle(PowerInfoType.producer));
+                b.setChecked(currType == PowerInfoType.producer);
+            });
             modes.button("@tq-power-info.consumer", Styles.togglet, () -> {
                 currType = PowerInfoType.consumer;
                 refresh();
-            }).growX().update(b -> b.setChecked(currType == PowerInfoType.consumer));
+            }).growX().update(b -> {
+                b.setText(selectionTitle(PowerInfoType.consumer));
+                b.setChecked(currType == PowerInfoType.consumer);
+            });
             modes.button("@tq-power-info.battery", Styles.togglet, () -> {
                 currType = PowerInfoType.battery;
                 refresh();
-            }).growX().update(b -> b.setChecked(currType == PowerInfoType.battery));
+            }).growX().update(b -> {
+                b.setText(selectionTitle(PowerInfoType.battery));
+                b.setChecked(currType == PowerInfoType.battery);
+            });
         }).growX().top();
 
         cont.row();
@@ -75,6 +86,16 @@ public class PowerGraphInfoDialog extends BaseDialog{
         this.graph = graph;
         updateListings();
         show();
+    }
+
+    private String selectionTitle(PowerInfoType type){
+        if(graph == null) return "";
+
+        return switch(type){
+            case producer -> Core.bundle.get("tq-power-info.producer") + " - " + Core.bundle.format("tq-power-info.persec", "[#98ffa9]+" + TQUI.formatAmount(graph.getLastScaledPowerIn() * 60));
+            case consumer -> Core.bundle.get("tq-power-info.consumer") + " - " + Core.bundle.format("tq-power-info.persec", "[#e55454]-" + TQUI.formatAmount(graph.getLastScaledPowerOut() * 60));
+            case battery -> Core.bundle.get("tq-power-info.battery") + " - [#fbad67]" + TQUI.formatAmount(graph.getLastPowerStored());
+        };
     }
 
     private void refresh(){
