@@ -34,7 +34,7 @@ public class PowerAnalyzer extends PowerBlock{
         super(name);
         update = false; //Does not need to update
         destructible = true;
-        enableDrawStatus = true;
+        enableDrawStatus = false; //Don't draw by default. Obscures the normal display.
         consumesTap = true;
     }
 
@@ -97,7 +97,9 @@ public class PowerAnalyzer extends PowerBlock{
         public void drawStorage(float stored, float capacity, float net){
             float powLen = displayLength * (stored / capacity);
             float alpha = Mathf.absin(25f / Mathf.PI2, 1f);
-            boolean changing = !Mathf.zero(net, changeTolerance);
+            boolean changing = !Mathf.zero(net, changeTolerance)
+                && !(net > 0 && Mathf.equal(stored, capacity, changeTolerance))
+                && !(net < 0 && Mathf.equal(stored, 0, changeTolerance));
 
             Draw.color(storedColor);
             if(horizontal){
@@ -125,15 +127,17 @@ public class PowerAnalyzer extends PowerBlock{
 
         @Override
         public void drawStatus(){ //Literally just removing the requirement of having a consumer
-            float multiplier = this.block.size > 1 ? 1f : 0.64f;
-            float brcx = this.x + (float)(this.block.size * 8) / 2f - 8f * multiplier / 2f;
-            float brcy = this.y - (float)(this.block.size * 8) / 2f + 8f * multiplier / 2f;
-            Draw.z(71f);
-            Draw.color(Pal.gray);
-            Fill.square(brcx, brcy, 2.5f * multiplier, 45f);
-            Draw.color(this.status().color);
-            Fill.square(brcx, brcy, 1.5f * multiplier, 45f);
-            Draw.color();
+            if(enableDrawStatus){
+                float multiplier = this.block.size > 1 ? 1f : 0.64f;
+                float brcx = this.x + (float)(this.block.size * 8) / 2f - 8f * multiplier / 2f;
+                float brcy = this.y - (float)(this.block.size * 8) / 2f + 8f * multiplier / 2f;
+                Draw.z(71f);
+                Draw.color(Pal.gray);
+                Fill.square(brcx, brcy, 2.5f * multiplier, 45f);
+                Draw.color(this.status().color);
+                Fill.square(brcx, brcy, 1.5f * multiplier, 45f);
+                Draw.color();
+            }
         }
 
         @Override
