@@ -35,6 +35,7 @@ public class PowerAnalyzer extends PowerBlock{
         update = false; //Does not need to update
         destructible = true;
         enableDrawStatus = false; //Don't draw by default. Obscures the normal display.
+        conductivePower = true;
         consumesTap = true;
     }
 
