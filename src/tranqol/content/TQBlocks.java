@@ -205,6 +205,7 @@ public class TQBlocks{
             displaySpacing = 18f / 4f;
             displayLength = 24f / 4f;
             horizontal = true; //Why not
+            hideDetails = false;
         }};
 
         //endregion
