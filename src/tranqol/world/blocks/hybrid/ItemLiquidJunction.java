@@ -73,6 +73,11 @@ public class ItemLiquidJunction extends LiquidBlock{
         return true;
     }
 
+    @Override
+    public boolean rotatedOutput(int x, int y){
+        return false;
+    }
+
     public class ItemLiquidJunctionBuild extends LiquidBuild{
         public DirectionalItemBuffer buffer = new DirectionalItemBuffer(capacity);
 
