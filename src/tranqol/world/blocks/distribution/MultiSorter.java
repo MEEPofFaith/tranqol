@@ -80,6 +80,11 @@ public class MultiSorter extends Block{
     }
 
     @Override
+    public TextureRegion getPlanRegion(BuildPlan plan, Eachable<BuildPlan> list){
+        return region;
+    }
+
+    @Override
     public void drawPlanConfig(BuildPlan plan, Eachable<BuildPlan> list){
         Draw.rect(topRegion, plan.drawx(), plan.drawy(), plan.rotation * 90f);
 
@@ -198,7 +203,7 @@ public class MultiSorter extends Block{
                     selectionDir = 2;
                     setSelection(selection);
                 }).checked(b -> selectionDir == 2).grow();
-            }).growX().height(32f);
+            }).growX().height(40f);
             table.row();
             setSelection(selection);
 
