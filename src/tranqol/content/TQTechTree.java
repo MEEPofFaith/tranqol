@@ -20,6 +20,10 @@ public class TQTechTree{
             node(liquidOverflowValve);
             node(liquidUnderflowValve);
         });
+
+        vanillaNode(invertedSorter, () -> {
+            node(multiSorter);
+        });
         
         vanillaNode(payloadConveyor, () -> {
             node(payloadJunction, () -> {
@@ -51,6 +55,10 @@ public class TQTechTree{
             node(ductJunction, () -> {
                 rebaseNode("erekir", ductRouter);
             });
+        });
+
+        vanillaNode("erekir", underflowDuct, () -> {
+            node(ductMultiSorter);
         });
 
         vanillaNode("erekir", reinforcedLiquidRouter, () -> {
