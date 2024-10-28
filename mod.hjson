@@ -14,7 +14,7 @@ main: "tranqol.Tranqol"
 description: "A quality of life mod that adds useful blocks for transportation and logistics."
 
 #the mod version
-version: v5
+version: v6
 
 #the minimum game build required to run this mod
 minGameVersion: 146
