@@ -15,6 +15,11 @@ import static mindustry.type.ItemStack.*;
 public class TQBlocks{
     public static Block
 
+    // region distribution - Serpulo
+
+    multiSorter,
+
+    // endregion
     // region distribution - Erekir
 
     ductJunction,
@@ -56,6 +61,13 @@ public class TQBlocks{
     // endregion
 
     public static void load(){
+        // region distribution - Serpulo
+
+        multiSorter = new MultiSorter("multi-sorter"){{
+            requirements(Category.distribution, with(Items.beryllium, 2));
+        }};
+
+        // endregion
         // region distribution - Erekir
 
         ductJunction = new DuctJunction("duct-junction"){{
@@ -64,6 +76,7 @@ public class TQBlocks{
             speed = 4f;
         }};
 
+        // endregion
         // region liquid - Serpulo
 
         liquidOverflowValve = new LiquidOverflowValve("liquid-overflow-valve"){{
