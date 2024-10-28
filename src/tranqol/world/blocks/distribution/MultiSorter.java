@@ -2,6 +2,7 @@ package tranqol.world.blocks.distribution;
 
 import arc.*;
 import arc.graphics.g2d.*;
+import arc.scene.style.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
@@ -191,23 +192,41 @@ public class MultiSorter extends Block{
         public void buildConfiguration(Table table){
             Table selection = new Table();
             table.table(t -> {
-                t.button(Icon.left, Styles.squareTogglei, () -> {
+                t.button(getArrow(rotation + 1), Styles.squareTogglei, () -> {
                     selectionDir = 0;
                     setSelection(selection);
-                }).checked(b -> selectionDir == 0).grow();
-                t.button(Icon.up, Styles.squareTogglei, () -> {
+                }).update(b -> {
+                    b.getStyle().imageUp = getArrow(rotation + 1);
+                    b.setChecked(selectionDir == 0);
+                }).grow();
+                t.button(getArrow(rotation), Styles.squareTogglei, () -> {
                     selectionDir = 1;
                     setSelection(selection);
-                }).checked(b -> selectionDir == 1).grow();
-                t.button(Icon.right, Styles.squareTogglei, () -> {
+                }).update(b -> {
+                    b.getStyle().imageUp = getArrow(rotation);
+                    b.setChecked(selectionDir == 1);
+                }).grow();
+                t.button(getArrow(rotation - 1), Styles.squareTogglei, () -> {
                     selectionDir = 2;
                     setSelection(selection);
-                }).checked(b -> selectionDir == 2).grow();
+                }).update(b -> {
+                    b.getStyle().imageUp = getArrow(rotation - 1);
+                    b.setChecked(selectionDir == 2);
+                }).grow();
             }).growX().height(40f);
             table.row();
             setSelection(selection);
 
             table.add(selection);
+        }
+
+        private TextureRegionDrawable getArrow(int dir){
+            return switch(dir){
+                case 4, 0 -> Icon.right;
+                default -> Icon.up;
+                case 2 -> Icon.left;
+                case -1, 3 -> Icon.down;
+            };
         }
 
         public void setSelection(Table table){
