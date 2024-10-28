@@ -57,7 +57,7 @@ public class TQTechTree{
             });
         });
 
-        vanillaNode("erekir", underflowDuct, () -> {
+        vanillaNode("erekir", ductRouter, () -> {
             node(ductMultiSorter);
         });
 
