@@ -1,8 +1,11 @@
 package tranqol.world.blocks.distribution;
 
+import arc.*;
+import arc.graphics.g2d.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import arc.util.io.*;
+import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.ui.*;
@@ -14,6 +17,8 @@ import static mindustry.Vars.*;
 
 public class MultiSorter extends Block{
     protected static byte selectionDir;
+
+    public TextureRegion topRegion, itemRegion;
 
     public MultiSorter(String name){
         super(name);
@@ -42,13 +47,86 @@ public class MultiSorter extends Block{
     }
 
     @Override
+    public void load(){
+        super.load();
+
+        topRegion = Core.atlas.find(name + "-top");
+        itemRegion = Core.atlas.find(name + "-item");
+    }
+
+    @Override
+    protected TextureRegion[] icons(){
+        return new TextureRegion[]{region, topRegion};
+    }
+
+    @Override
     public boolean outputsItems(){
         return true;
+    }
+
+    @Override
+    public boolean rotatedOutput(int x, int y){
+        return false;
+    }
+
+    @Override
+    public void flipRotation(BuildPlan req, boolean x){
+        super.flipRotation(req, x);
+        if(req.config instanceof int[] items){
+            int i = items[0];
+            items[0] = items[2];
+            items[2] = i;
+        }
+    }
+
+    @Override
+    public void drawPlanConfig(BuildPlan plan, Eachable<BuildPlan> list){
+        Draw.rect(topRegion, plan.drawx(), plan.drawy(), plan.rotation * 90f);
+
+        if(plan.config instanceof int[] items){
+            Item item = content.item(items[0]);
+            if(item != null){
+                Draw.color(item.color);
+                Draw.rect(itemRegion, plan.drawx(), plan.drawy(), (plan.rotation + 1) * 90f);
+            }
+            item = content.item(items[1]);
+            if(item != null){
+                Draw.color(item.color);
+                Draw.rect(itemRegion, plan.drawx(), plan.drawy(), (plan.rotation * 90f));
+            }
+            item = content.item(items[2]);
+            if(item != null){
+                Draw.color(item.color);
+                Draw.rect(itemRegion, plan.drawx(), plan.drawy(), (plan.rotation - 1) * 90f);
+            }
+            Draw.color();
+        }
     }
 
     public class MultiSorterBuild extends Building{
         public @Nullable Item leftSort, frontSort, rightSort;
         public byte outDir;
+
+        @Override
+        public void draw(){
+            super.draw();
+
+            Draw.rect(topRegion, x, y, rotdeg());
+
+            if(leftSort != null){
+                Draw.color(leftSort.color);
+                Draw.rect(itemRegion, x, y, (rotation + 1) * 90f);
+            }
+            if(frontSort != null){
+                Draw.color(frontSort.color);
+                Draw.rect(itemRegion, x, y, rotdeg());
+            }
+            if(rightSort != null){
+                Draw.color(rightSort.color);
+                Draw.rect(itemRegion, x, y, (rotation - 1) * 90f);
+            }
+            Draw.color();
+        }
 
         @Override
         public boolean acceptItem(Building source, Item item){
@@ -68,9 +146,6 @@ public class MultiSorter extends Block{
             boolean a = left != null && !(left.block.instantTransfer && source.block.instantTransfer) && left.acceptItem(this, item);
             boolean b = front != null && !(front.block.instantTransfer && source.block.instantTransfer) && front.acceptItem(this, item);
             boolean c = right != null && !(right.block.instantTransfer && source.block.instantTransfer) && right.acceptItem(this, item);
-
-            Log.info("LeftB: @ | FrontB: @ | RightB: @", left, front, right);
-            Log.info("Left: @ | Front: @ | Right: @", a, b, c);
 
             if(a && !b && !c){
                 return left;
@@ -150,9 +225,9 @@ public class MultiSorter extends Block{
 
         public int[] config(){
             return new int[]{
-                leftSort != null ? leftSort.id : -1,
-                frontSort != null ? frontSort.id : -1,
-                rightSort != null ? rightSort.id : -1
+                leftSort == null ? -1 : leftSort.id,
+                frontSort == null ? -1 : frontSort.id,
+                rightSort == null ? -1 : rightSort.id
             };
         }
 
