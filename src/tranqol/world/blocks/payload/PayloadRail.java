@@ -62,10 +62,16 @@ public class PayloadRail extends PayloadBlock{
     }
 
     public boolean linkValid(Tile tile, Tile other, boolean checkLink){
-        if(tile == null || other == null || !positionsValid(tile.x, tile.y, other.x, other.y)) return false;
+        if(
+            tile == null || other == null
+            || tile.build == null || other.build == null
+            || !positionsValid(tile.build.tileX(), tile.build.tileY(), other.build.tileX(), other.build.tileY())
+            || !(other.build instanceof PayloadRailBuild b)
+        ) return false;
 
         return tile.block() == other.block()
-            && (!checkLink || ((other.build instanceof PayloadRailBuild b) && b.incoming == -1));
+            && (!checkLink || b.incoming == -1 || b.incoming == tile.build.pos())
+            && b.link != tile.build.pos();
     }
 
     public boolean positionsValid(int x1, int y1, int x2, int y2){
@@ -305,6 +311,7 @@ public class PayloadRail extends PayloadBlock{
         @Override
         public boolean onConfigureBuildTapped(Building other){
             if(linkValid(tile, other.tile, true)){
+                Log.info("Link @ == Pos @", link, other.pos());
                 if(link == other.pos()){
                     configure(-1);
                 }else{
@@ -319,7 +326,11 @@ public class PayloadRail extends PayloadBlock{
         public boolean checkLink(){
             if(link == -1) return true;
             Building other = world.build(link);
-            if(!(other instanceof PayloadRailBuild build)){
+            if(
+                !(other instanceof PayloadRailBuild build)
+                || build.link == pos()
+                || !positionsValid(tileX(), tileY(), other.tileX(), other.tileY())
+            ){
                 return true;
             }
             if(build.incoming == -1){
@@ -330,7 +341,7 @@ public class PayloadRail extends PayloadBlock{
 
         public void checkIncoming(){
             Building other = world.build(incoming);
-            if(!(other instanceof PayloadRailBuild build) || build.link != pos()){
+            if(!(other instanceof PayloadRailBuild build) || build.link != pos() || !positionsValid(tileX(), tileY(), other.tileX(), other.tileY())){
                 incoming = -1;
             }
         }
