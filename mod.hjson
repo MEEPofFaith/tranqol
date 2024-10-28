@@ -1,5 +1,5 @@
 #the mod name as displayed in-game
-displayName: "Tranqol"
+displayName: "Additional Logistics"
 
 #the internal name of your mod
 name: "tranqol"
@@ -11,7 +11,7 @@ author: "MEEPofFaith"
 main: "tranqol.Tranqol"
 
 #the mod description as seen in the mod dialog
-description: "Give yourself a tranquil feeling with more control over the flow of resources."
+description: "A quality of life mod that adds useful blocks for transportation and logistics."
 
 #the mod version
 version: v5
