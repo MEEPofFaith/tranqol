@@ -28,7 +28,7 @@ public class PayloadRail extends PayloadBlock{
     public float clawWarmupRate = 0.08f;
     public float warmupSpeed = 0.05f;
 
-    protected TextureRegion railEndRegion, arrow;
+    protected TextureRegion railEndRegion, arrowRegion;
     protected TextureRegion[] railRegions, clawRegions;
 
     public PayloadRail(String name){
@@ -61,7 +61,7 @@ public class PayloadRail extends PayloadBlock{
         clipSize = Math.max(clipSize, (range + maxPayloadSize + 2) * 2f);
     }
 
-    public boolean linkValid(Tile tile, Tile other, boolean checkLink){
+    public boolean linkValid(Tile tile, Tile other){
         if(
             tile == null || other == null
             || tile.build == null || other.build == null
@@ -70,7 +70,7 @@ public class PayloadRail extends PayloadBlock{
         ) return false;
 
         return tile.block() == other.block()
-            && (!checkLink || b.incoming == -1 || b.incoming == tile.build.pos())
+            && (b.incoming == -1 || b.incoming == tile.build.pos())
             && b.link != tile.build.pos();
     }
 
@@ -118,7 +118,7 @@ public class PayloadRail extends PayloadBlock{
             clawRegions[i] = Core.atlas.find(name + "-claw-" + i);
         }
 
-        arrow = Core.atlas.find("bridge-arrow");
+        arrowRegion = Core.atlas.find("bridge-arrow");
     }
 
     public class PayloadRailBuild extends PayloadBlockBuild<Payload>{
@@ -192,7 +192,7 @@ public class PayloadRail extends PayloadBlock{
             Draw.scl(warmup * 1.1f);
             for(int i = 0; i < 4; i++){
                 Tmp.v1.set(x, y).lerp(other.x, other.y, 0.5f + (i - 1.5f) * 0.2f);
-                Draw.rect(arrow, Tmp.v1.x, Tmp.v1.y, ang);
+                Draw.rect(arrowRegion, Tmp.v1.x, Tmp.v1.y, ang);
             }
             Draw.color();
             Draw.scl();
@@ -208,6 +208,58 @@ public class PayloadRail extends PayloadBlock{
 
                 Draw.z((incoming != -1 && !checkLink()) ? Layer.power - 1 : Layer.blockOver);
                 payload.draw();
+            }
+        }
+
+        @Override
+        public void drawSelect(){
+            if(linkValid(tile, world.tile(link))){
+                drawInput(world.tile(link));
+            }
+
+            if(incoming != -1){
+                drawInput(world.tile(incoming));
+            }
+        }
+
+        private void drawInput(Tile other){
+            boolean linked = other.pos() == link;
+
+            Tmp.v2.trns(tile.angleTo(other), 2f);
+            float tx = tile.drawx(), ty = tile.drawy();
+            float ox = other.drawx(), oy = other.drawy();
+            float alpha = Math.abs((linked ? 100 : 0)-(Time.time * 2f) % 100f) / 100f;
+            float x = Mathf.lerp(ox, tx, alpha);
+            float y = Mathf.lerp(oy, ty, alpha);
+
+            float rot = linked ? angleTo(other) : other.angleTo(tile);
+
+            //draw "background"
+            Draw.color(Pal.gray);
+            Lines.stroke(2.5f);
+            Lines.square(ox, oy, 2f, 45f);
+            Lines.stroke(2.5f);
+            Lines.line(tx + Tmp.v2.x, ty + Tmp.v2.y, ox - Tmp.v2.x, oy - Tmp.v2.y);
+
+            //draw foreground colors
+            Draw.color(linked ? Pal.place : Pal.accent);
+            Lines.stroke(1f);
+            Lines.line(tx + Tmp.v2.x, ty + Tmp.v2.y, ox - Tmp.v2.x, oy - Tmp.v2.y);
+
+            Lines.square(ox, oy, 2f, 45f);
+            Draw.mixcol(Draw.getColor(), 1f);
+            Draw.color();
+            Draw.rect(arrowRegion, x, y, rot);
+            Draw.mixcol();
+        }
+
+        @Override
+        public void drawConfigure(){
+            Drawf.select(x, y, tile.block().size * tilesize / 2f + 2f, Pal.accent);
+
+            Tile other = world.tile(link);
+            if(linkValid(tile,other)){
+                Drawf.select(other.build.x, other.build.y, tile.block().size * tilesize / 2f + 2f, Pal.place);
             }
         }
 
@@ -310,7 +362,7 @@ public class PayloadRail extends PayloadBlock{
 
         @Override
         public boolean onConfigureBuildTapped(Building other){
-            if(linkValid(tile, other.tile, true)){
+            if(linkValid(tile, other.tile)){
                 Log.info("Link @ == Pos @", link, other.pos());
                 if(link == other.pos()){
                     configure(-1);
