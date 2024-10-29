@@ -21,7 +21,7 @@ public class TQTechTree{
         });
 
         vanillaNode(invertedSorter, () -> {
-            node(multiSorter);
+            node(smartSorter);
         });
 
         vanillaNode(liquidRouter, () -> {
@@ -62,7 +62,7 @@ public class TQTechTree{
         });
 
         vanillaNode("erekir", ductRouter, () -> {
-            node(ductMultiSorter);
+            node(ductSmartSorter);
         });
 
         vanillaNode("erekir", reinforcedLiquidRouter, () -> {

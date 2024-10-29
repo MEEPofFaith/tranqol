@@ -17,12 +17,12 @@ public class TQBlocks{
 
     // region distribution - Serpulo
 
-    hydroconveyor, multiSorter,
+    hydroconveyor, smartSorter,
 
     // endregion
     // region distribution - Erekir
 
-    ductJunction, ductMultiSorter,
+    ductJunction, ductSmartSorter,
 
     // endregion
     // region liquid - Serpulo
@@ -77,7 +77,7 @@ public class TQBlocks{
             buildCostMultiplier = 0.25f;
         }};
 
-        multiSorter = new MultiSorter("multi-sorter"){{
+        smartSorter = new MultiSorter("multi-sorter"){{
             requirements(Category.distribution, with(Items.lead, 5, Items.copper, 5, Items.silicon, 5));
         }};
 
@@ -90,7 +90,7 @@ public class TQBlocks{
             speed = 4f;
         }};
 
-        ductMultiSorter = new MultiSorter("duct-multi-sorter"){{
+        ductSmartSorter = new MultiSorter("duct-multi-sorter"){{
             requirements(Category.distribution, with(Items.beryllium, 5, Items.silicon, 5));
             health = 90;
         }};
