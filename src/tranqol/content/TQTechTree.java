@@ -16,13 +16,17 @@ public class TQTechTree{
     static TechTree.TechNode context = null;
 
     public static void load(){
-        vanillaNode(liquidRouter, () -> {
-            node(liquidOverflowValve);
-            node(liquidUnderflowValve);
+        vanillaNode(armoredConveyor, () -> {
+            node(hydroconveyor);
         });
 
         vanillaNode(invertedSorter, () -> {
             node(multiSorter);
+        });
+
+        vanillaNode(liquidRouter, () -> {
+            node(liquidOverflowValve);
+            node(liquidUnderflowValve);
         });
         
         vanillaNode(payloadConveyor, () -> {
