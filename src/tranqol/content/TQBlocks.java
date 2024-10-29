@@ -17,7 +17,7 @@ public class TQBlocks{
 
     // region distribution - Serpulo
 
-    multiSorter,
+    hydroconveyor, multiSorter,
 
     // endregion
     // region distribution - Erekir
@@ -62,6 +62,20 @@ public class TQBlocks{
 
     public static void load(){
         // region distribution - Serpulo
+
+        hydroconveyor = new CoveredConveyor("hydroconveyor"){{
+            requirements(Category.distribution, with(
+                Items.lead, 3,
+                Items.metaglass, 3,
+                Items.plastanium, 3
+            ));
+            health = 15;
+            floating = true;
+            placeableLiquid = true;
+            speed = 0.06f;
+            displayedSpeed = 8.4f;
+            buildCostMultiplier = 0.25f;
+        }};
 
         multiSorter = new MultiSorter("multi-sorter"){{
             requirements(Category.distribution, with(Items.lead, 5, Items.copper, 5, Items.silicon, 5));
