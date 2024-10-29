@@ -41,6 +41,8 @@ public class CoveredConveyor extends Conveyor{
 
         if(bits == null) return;
 
+        if(!req.tile().floor().isDeep()) return;
+
         TextureRegion region = coverRegions[bits[0]];
         Draw.rect(region, req.drawx(), req.drawy(), region.width * bits[1] * Draw.scl, region.height * bits[2] * Draw.scl, req.rotation * 90);
     }
@@ -58,10 +60,13 @@ public class CoveredConveyor extends Conveyor{
             super.draw();
 
             Draw.z(Layer.block - 0.08f);
-            Draw.rect(coverRegions[blendbits], x, y, Vars.tilesize * blendsclx, Vars.tilesize * blendscly, rotation * 90);
+
+            if(tile().floor().isDeep()){
+                Draw.rect(coverRegions[blendbits], x, y, Vars.tilesize * blendsclx, Vars.tilesize * blendscly, rotation * 90);
+            }
 
             if(frontCap) Draw.rect(outputRegion, x, y, rotdeg());
-            if(!backCap) Draw.rect(inputRegion, x, y, rotdeg());
+            if(backCap) Draw.rect(inputRegion, x, y, rotdeg());
             if(leftCap) Draw.rect(inputRegion, x, y, rotdeg() - 90f);
             if(rightCap) Draw.rect(inputRegion, x, y, rotdeg() + 90f);
         }
@@ -69,22 +74,26 @@ public class CoveredConveyor extends Conveyor{
         @Override
         public void unitOn(Unit unit){
             //There is a cover, can't slide on this thing
+            if(!tile().floor().isDeep()){
+                super.unitOn(unit);
+            }
         }
 
         @Override
         public void onProximityUpdate(){
             super.onProximityUpdate();
 
-            frontCap = nextc == null || block != nextc.block;
+            frontCap = tile().floor().isDeep() && (nextc == null || !nextc.tile().floor().isDeep());
 
             Building backB = back();
-            backCap = blendbits == 1 || blendbits == 4 || TQUtls.relativeDirection(backB, this) == 0 && backB.block == block;
+            backCap = !(blendbits == 1 || blendbits == 4) && tile().floor().isDeep()
+                && (backB == null || TQUtls.relativeDirection(backB, this) == 0 && backB.block == block && !backB.tile().floor().isDeep());
 
             Building leftB = left();
-            leftCap = blendbits != 0 && TQUtls.relativeDirection(leftB, this) == 0 && leftB.block != block;
+            leftCap = blendbits != 0 && TQUtls.relativeDirection(leftB, this) == 0 && leftB.block != block && tile().floor().isDeep() && leftB.tile().floor().isDeep();
 
             Building rightB = right();
-            rightCap = blendbits != 0 && TQUtls.relativeDirection(rightB, this) == 0 && rightB.block != block;
+            rightCap = blendbits != 0 && TQUtls.relativeDirection(rightB, this) == 0 && rightB.block != block && tile().floor().isDeep() && rightB.tile().floor().isDeep();
         }
     }
 }
