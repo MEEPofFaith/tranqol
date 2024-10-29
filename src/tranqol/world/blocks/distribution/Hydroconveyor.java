@@ -7,14 +7,17 @@ import mindustry.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
+import mindustry.world.*;
 import mindustry.world.blocks.distribution.*;
 import tranqol.util.*;
 
-public class CoveredConveyor extends Conveyor{
+public class Hydroconveyor extends Conveyor{
     public TextureRegion[] coverRegions = new TextureRegion[5];
     public TextureRegion inputRegion, outputRegion;
+    /** Whether to be covered when over shallow liquid */
+    public boolean coveredShallow = false;
 
-    public CoveredConveyor(String name){
+    public Hydroconveyor(String name){
         super(name);
     }
 
@@ -37,14 +40,17 @@ public class CoveredConveyor extends Conveyor{
     public void drawPlanRegion(BuildPlan req, Eachable<BuildPlan> list){
         super.drawPlanRegion(req, list);
 
+        if(!covered(req.tile())) return;
+
         int[] bits = getTiling(req, list);
-
         if(bits == null) return;
-
-        if(!req.tile().floor().isDeep()) return;
 
         TextureRegion region = coverRegions[bits[0]];
         Draw.rect(region, req.drawx(), req.drawy(), region.width * bits[1] * Draw.scl, region.height * bits[2] * Draw.scl, req.rotation * 90);
+    }
+
+    public boolean covered(Tile tile){
+        return coveredShallow ? tile.floor().isLiquid : tile.floor().isDeep();
     }
 
     @Override
@@ -61,7 +67,7 @@ public class CoveredConveyor extends Conveyor{
 
             Draw.z(Layer.block - 0.08f);
 
-            if(tile().floor().isDeep()){
+            if(covered(tile)){
                 Draw.rect(coverRegions[blendbits], x, y, Vars.tilesize * blendsclx, Vars.tilesize * blendscly, rotation * 90);
             }
 
@@ -74,7 +80,7 @@ public class CoveredConveyor extends Conveyor{
         @Override
         public void unitOn(Unit unit){
             //There is a cover, can't slide on this thing
-            if(!tile().floor().isDeep()){
+            if(!covered(tile)){
                 super.unitOn(unit);
             }
         }
@@ -83,17 +89,17 @@ public class CoveredConveyor extends Conveyor{
         public void onProximityUpdate(){
             super.onProximityUpdate();
 
-            frontCap = tile().floor().isDeep() && (nextc == null || !nextc.tile().floor().isDeep());
+            frontCap = covered(tile) && (nextc == null || !covered(nextc.tile));
 
             Building backB = back();
-            backCap = !(blendbits == 1 || blendbits == 4) && tile().floor().isDeep()
-                && (backB == null || TQUtls.relativeDirection(backB, this) == 0 && backB.block == block && !backB.tile().floor().isDeep());
+            backCap = !(blendbits == 1 || blendbits == 4) && covered(tile)
+                && (backB == null || TQUtls.relativeDirection(backB, this) == 0 && backB.block == block && !covered(backB.tile));
 
             Building leftB = left();
-            leftCap = blendbits != 0 && TQUtls.relativeDirection(leftB, this) == 0 && leftB.block != block && tile().floor().isDeep() && leftB.tile().floor().isDeep();
+            leftCap = blendbits != 0 && TQUtls.relativeDirection(leftB, this) == 0 && leftB.block != block && covered(tile) && covered(leftB.tile);
 
             Building rightB = right();
-            rightCap = blendbits != 0 && TQUtls.relativeDirection(rightB, this) == 0 && rightB.block != block && tile().floor().isDeep() && rightB.tile().floor().isDeep();
+            rightCap = blendbits != 0 && TQUtls.relativeDirection(rightB, this) == 0 && rightB.block != block && covered(tile) && covered(rightB.tile);
         }
     }
 }

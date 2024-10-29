@@ -63,7 +63,7 @@ public class TQBlocks{
     public static void load(){
         // region distribution - Serpulo
 
-        hydroconveyor = new CoveredConveyor("hydroconveyor"){{
+        hydroconveyor = new Hydroconveyor("hydroconveyor"){{
             requirements(Category.distribution, with(
                 Items.lead, 3,
                 Items.metaglass, 3,
