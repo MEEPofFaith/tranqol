@@ -8,7 +8,7 @@ import mindustry.core.*;
 import mindustry.graphics.*;
 import mindustry.world.blocks.power.*;
 
-import static mindustry.Vars.tilesize;
+import static mindustry.Vars.*;
 
 public class SmartBeamNode extends BeamNode{
     public SmartBeamNode(String name){
