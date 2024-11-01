@@ -265,8 +265,8 @@ public class PayloadRail extends PayloadBlock{
             Drawf.select(x, y, tile.block().size * tilesize / 2f + 2f, Pal.accent);
 
             highlighted.clear();
-            for(int tx = (int)-range; tx <= range; tx++){
-                for(int ty = (int)-range; ty <= range; ty++){
+            for(int tx = (int)-range - 1; tx <= range + 1; tx++){
+                for(int ty = (int)-range - 1; ty <= range + 1; ty++){
                     Tile other = world.tile(tileX() + tx, tileY() + ty);
                     if(linkValid(tile, other) && !highlighted.contains(other.pos())){
                         highlighted.add(other.pos());
