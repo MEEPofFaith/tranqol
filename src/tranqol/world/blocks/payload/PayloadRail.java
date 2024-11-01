@@ -166,7 +166,7 @@ public class PayloadRail extends PayloadBlock{
 
             drawPayload();
 
-            if(link == -1) return;
+            if(checkLink()) return;
             Building other = world.build(link);
             if(!(other instanceof PayloadRailBuild)) return;
 
@@ -258,7 +258,7 @@ public class PayloadRail extends PayloadBlock{
             Drawf.select(x, y, tile.block().size * tilesize / 2f + 2f, Pal.accent);
 
             Tile other = world.tile(link);
-            if(linkValid(tile,other)){
+            if(linkValid(tile, other)){
                 Drawf.select(other.build.x, other.build.y, tile.block().size * tilesize / 2f + 2f, Pal.place);
             }
         }
