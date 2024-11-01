@@ -1,12 +1,15 @@
 package tranqol.world.blocks.payload;
 
 import arc.*;
+import arc.graphics.*;
 import arc.graphics.g2d.*;
+import arc.graphics.gl.*;
 import arc.math.*;
 import arc.math.geom.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.io.*;
+import mindustry.core.*;
 import mindustry.entities.units.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -15,6 +18,7 @@ import mindustry.world.blocks.payloads.*;
 import tranqol.graphics.*;
 
 import static mindustry.Vars.*;
+import static tranqol.graphics.TQShaders.*;
 
 public class PayloadRail extends PayloadBlock{
     protected static float zeroPrecision = 0.5f;
@@ -168,7 +172,8 @@ public class PayloadRail extends PayloadBlock{
 
             if(checkLink()) return;
             Building other = world.build(link);
-            if(!(other instanceof PayloadRailBuild)) return;
+            float opacity = Renderer.bridgeOpacity;
+            if(!(other instanceof PayloadRailBuild) || Mathf.zero(opacity)) return;
 
             items.each(p -> {
                 Draw.z(Layer.power - 1);
@@ -184,11 +189,11 @@ public class PayloadRail extends PayloadBlock{
             float dy = (other.y - y) / count;
             for(int i = 0; i < count; i++){
                 float j = (i + 0.5f);
-                TQDrawf.spinSprite(railRegions, x + dx * j, y + dy * j, texW * width, railRegions[0].height / 4f, ang);
+                TQDrawf.spinSprite(railRegions, x + dx * j, y + dy * j, texW * width, railRegions[0].height / 4f, ang, opacity);
             }
 
             Draw.z(Layer.effect);
-            Draw.color(Pal.accent);
+            Draw.color(Pal.accent, opacity);
             Draw.scl(warmup * 1.1f);
             for(int i = 0; i < 4; i++){
                 Tmp.v1.set(x, y).lerp(other.x, other.y, 0.5f + (i - 1.5f) * 0.2f);
@@ -198,7 +203,7 @@ public class PayloadRail extends PayloadBlock{
             Draw.scl();
 
             Draw.z(Layer.power + 0.2f);
-            TQDrawf.spinSprite(clawRegions, x, y, ang, clawOutAlpha);
+            TQDrawf.spinSprite(clawRegions, x, y, ang, clawOutAlpha * opacity);
         }
 
         @Override
@@ -481,9 +486,22 @@ public class PayloadRail extends PayloadBlock{
         }
 
         public void draw(){
-            payload.draw();
+            float opacity = Renderer.bridgeOpacity;
+            if(opacity < 0.999f){
+                FrameBuffer buffer = renderer.effectBuffer;
+                Draw.draw(Draw.z(), () -> {
+                    buffer.begin(Color.clear);
+                    payload.draw();
+                    buffer.end();
+
+                    alphaShader.alpha = opacity;
+                    buffer.blit(alphaShader);
+                });
+            }else{
+                payload.draw();
+            }
             Draw.z(Layer.power + 0.2f);
-            TQDrawf.spinSprite(clawRegions, payload.x(), payload.y(), dir);
+            TQDrawf.spinSprite(clawRegions, payload.x(), payload.y(), dir, opacity);
         }
 
         public boolean railArrived(Position target){
