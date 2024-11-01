@@ -21,6 +21,7 @@ import static mindustry.Vars.*;
 import static tranqol.graphics.TQShaders.*;
 
 public class PayloadRail extends PayloadBlock{
+    protected static final IntSet highlighted = new IntSet();
     protected static float zeroPrecision = 0.5f;
 
     public float maxPayloadSize = 3f;
@@ -69,6 +70,7 @@ public class PayloadRail extends PayloadBlock{
         if(
             tile == null || other == null
             || tile.build == null || other.build == null
+            || tile.build.pos() == other.build.pos()
             || !positionsValid(tile.build.tileX(), tile.build.tileY(), other.build.tileX(), other.build.tileY())
             || !(other.build instanceof PayloadRailBuild b)
         ) return false;
@@ -218,7 +220,7 @@ public class PayloadRail extends PayloadBlock{
 
         @Override
         public void drawSelect(){
-            if(linkValid(tile, world.tile(link))){
+            if(!checkLink()){
                 drawInput(world.tile(link));
             }
 
@@ -262,10 +264,25 @@ public class PayloadRail extends PayloadBlock{
         public void drawConfigure(){
             Drawf.select(x, y, tile.block().size * tilesize / 2f + 2f, Pal.accent);
 
-            Tile other = world.tile(link);
-            if(linkValid(tile, other)){
-                Drawf.select(other.build.x, other.build.y, tile.block().size * tilesize / 2f + 2f, Pal.place);
+            highlighted.clear();
+            for(int tx = (int)-range; tx <= range; tx++){
+                for(int ty = (int)-range; ty <= range; ty++){
+                    Tile other = world.tile(tileX() + tx, tileY() + ty);
+                    if(linkValid(tile, other) && !highlighted.contains(other.pos())){
+                        highlighted.add(other.pos());
+                    }
+                }
             }
+
+            highlighted.each(i -> {
+                Tile other = world.tile(i);
+                boolean linked = other.build.pos() == link;
+                Drawf.select(
+                    other.build.x, other.build.y,
+                    tile.block().size * tilesize / 2f + 2f + (linked ? 0f : Mathf.absin(Time.time, 4f, 1f)),
+                    linked ? Pal.place : Pal.breakInvalid
+                );
+            });
         }
 
         @Override
@@ -368,7 +385,6 @@ public class PayloadRail extends PayloadBlock{
         @Override
         public boolean onConfigureBuildTapped(Building other){
             if(linkValid(tile, other.tile)){
-                Log.info("Link @ == Pos @", link, other.pos());
                 if(link == other.pos()){
                     configure(-1);
                 }else{
